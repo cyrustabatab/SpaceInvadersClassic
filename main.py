@@ -40,6 +40,13 @@ def game():
     game_over_text = font.render("GAME OVER!",True,WHITE)
     gap_from_center = 50
     game_over_text_rect = game_over_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
+    
+
+    wave = 1
+    wave_font = pygame.font.Font(os.path.join('assets','atari.ttf'),20)
+    wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
+    wave_text_rect= wave_text.get_rect(topright=(WIDTH-10,10))
+
 
     buttons_gap_from_edge = 100
 
@@ -118,6 +125,7 @@ def game():
         aliens.draw(screen)
         player_ship.draw(screen)
         explosions.draw(screen)
+        screen.blit(wave_text,wave_text_rect)
         if  not game_over:
             player_ship.sprite.draw_health_bar_and_bullets(screen)
 
