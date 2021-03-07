@@ -106,17 +106,22 @@ def game():
 
 
 def menu():
-    title_font = pygame.font.SysFont("comicsansms",50)
+    title_font = pygame.font.Font(os.path.join('assets','atari.ttf'),40)
     top_gap = 50
     title_text = title_font.render("SPACE INVADERS",True,WHITE)
+    
 
     title_text_rect= title_text.get_rect(center=(WIDTH//2,top_gap + title_text.get_height()//2))
     
+    enter_font = pygame.font.Font(os.path.join('assets','atari.ttf'),30)
+    enter_text = enter_font.render("Hit ENTER To Play!",True,WHITE)
+    enter_text_rect = enter_text.get_rect(center=(WIDTH//2,HEIGHT//2))
     topleft = (0,0)
     pygame.mixer.music.load(os.path.join('assets','intro.ogg'))
     pygame.mixer.music.play(-1)
-
-
+    
+    alpha_surface = pygame.Surface(enter_text.get_size(),pygame.SRCALPHA)
+    alpha = 255
 
     while True:
 
@@ -129,12 +134,22 @@ def menu():
                     pygame.mixer.music.stop()
                     game()
 
+         
+        
+        if alpha > 0:
+            alpha = max(alpha - 4,0)
+            enter_text_copy = enter_text.copy()
+            alpha_surface.fill((255,255,255,alpha))
+            enter_text_copy.blit(alpha_surface,(0,0),special_flags=pygame.BLEND_RGBA_MULT)
+        else:
+            alpha = 255
 
 
         
         screen.blit(background_image,topleft)
 
         screen.blit(title_text,title_text_rect)
+        screen.blit(enter_text_copy,enter_text_rect)
         pygame.display.update()
 
 
