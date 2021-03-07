@@ -16,6 +16,7 @@ pygame.display.set_caption(title)
 
 
 WHITE = (255,255,255)
+RED = (255,0,0)
 
 
 background_image = pygame.image.load(os.path.join('assets','bg.png'))
@@ -39,6 +40,27 @@ def game():
     game_over_text = font.render("GAME OVER!",True,WHITE)
     gap_from_center = 50
     game_over_text_rect = game_over_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
+
+    buttons_gap_from_edge = 100
+
+    play_again_text = font.render("PLAY AGAIN",True,WHITE)
+    play_again_surface = pygame.Surface((play_again_text.get_width() + 50,play_again_text.get_height() + 50),pygame.SRCALPHA)
+    play_again_surface.fill(RED)
+
+    play_again_surface.blit(play_again_text,(play_again_surface.get_width()//2 - play_again_text.get_width()//2,play_again_surface.get_width()//2 - play_again_text.get_width()//2))
+    play_again_surface_rect = play_again_surface.get_rect(center=(WIDTH//2,game_over_text_rect.bottom + 100))
+
+    menu_text = font.render("MENU",True,WHITE)
+    menu_surface = pygame.Surface((menu_text.get_width() + 50,menu_text.get_height() + 50),pygame.SRCALPHA)
+    menu_surface.fill(RED)
+
+    menu_surface.blit(menu_text,(menu_surface.get_width()//2 - menu_text.get_width()//2,menu_surface.get_width()//2 - menu_text.get_width()//2))
+    menu_surface_rect = menu_surface.get_rect(center=(WIDTH//2,play_again_surface_rect.bottom + 100))
+
+
+    alpha_play_again_text_surface = pygame.Surface(play_again_text.get_size(),pygame.SRCALPHA)
+    alpha_play_again_text_surface.fill((255,0,0,128))
+
     pygame.mixer.music.load(os.path.join('assets','level1.ogg'))
 
     start_sound = pygame.mixer.Sound(os.path.join('assets','racestart.wav'))
@@ -50,7 +72,7 @@ def game():
 
     game_over = False
     topleft=(0,0)
-    
+    red_transparent = (255,0,0,128)    
     started = False
 
     start_time = time.time()
@@ -59,6 +81,7 @@ def game():
     seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
     second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
     start_sound.play()
+
     while True:
         
 
@@ -78,8 +101,12 @@ def game():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                reset()
+            elif game_over and event.type == pygame.MOUSEBUTTONDOWN:
+                point = pygame.mouse.get_pos()
+                if play_again_surface_rect.collidepoint(point):
+                    reset()
+                elif menu_surface_rect.collidepoint(point):
+                    return
 
         
         explosions.update()
@@ -96,9 +123,32 @@ def game():
 
         if not started:
             screen.blit(seconds_text,second_text_rect)
-            
         elif game_over:
+
+            point = pygame.mouse.get_pos()
+
+            if play_again_surface_rect.collidepoint(point):
+                play_again_surface.fill(red_transparent)
+                play_again_surface.blit(play_again_text,(play_again_surface.get_width()//2 - play_again_text.get_width()//2,play_again_surface.get_width()//2 - play_again_text.get_width()//2))
+            else:
+                play_again_surface.fill(RED)
+                play_again_surface.blit(play_again_text,(play_again_surface.get_width()//2 - play_again_text.get_width()//2,play_again_surface.get_width()//2 - play_again_text.get_width()//2))
+            
+
+            if menu_surface_rect.collidepoint(point):
+                menu_surface.fill(red_transparent)
+
+                menu_surface.blit(menu_text,(menu_surface.get_width()//2 - menu_text.get_width()//2,menu_surface.get_width()//2 - menu_text.get_width()//2))
+            else:
+                menu_surface.fill(RED)
+
+                menu_surface.blit(menu_text,(menu_surface.get_width()//2 - menu_text.get_width()//2,menu_surface.get_width()//2 - menu_text.get_width()//2))
+
+
+
             screen.blit(game_over_text,game_over_text_rect)
+            screen.blit(play_again_surface,play_again_surface_rect)
+            screen.blit(menu_surface,menu_surface_rect)
         
 
         pygame.display.update()
@@ -133,6 +183,8 @@ def menu():
                 if event.key == pygame.K_RETURN:
                     pygame.mixer.music.stop()
                     game()
+                    pygame.mixer.music.load(os.path.join('assets','intro.ogg'))
+                    pygame.mixer.music.play(-1)
 
          
         
