@@ -35,7 +35,7 @@ def game():
         second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
         start_time = time.time()
         start_sound.play()
-    font = pygame.font.SysFont('comicsansms',42)
+    font = pygame.font.Font(os.path.join('assets','atari.ttf'),30)
     game_over_text = font.render("GAME OVER!",True,WHITE)
     gap_from_center = 50
     game_over_text_rect = game_over_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
