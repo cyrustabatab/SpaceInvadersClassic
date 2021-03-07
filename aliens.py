@@ -41,9 +41,7 @@ class Aliens:
 
     def draw(self,screen):
 
-        for alien in self.aliens:
-            alien.draw(screen)
-        
+        self.aliens.draw(screen) 
         self.all_bullets.draw(screen)
 
     def update(self):

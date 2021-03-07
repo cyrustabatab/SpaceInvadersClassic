@@ -1,5 +1,6 @@
-import pygame,os
+import pygame,os,random
 from bullet import Bullet
+from explosion_animation import Explosion
 import time
 
 vec = pygame.math.Vector2
@@ -12,6 +13,7 @@ class Spaceship(pygame.sprite.Sprite):
 
     image = pygame.image.load(os.path.join('assets','spaceship.png'))
     laser_sound = pygame.mixer.Sound(os.path.join('assets','laser.wav'))
+    laser_sound.set_volume(0.3)
     def __init__(self,screen_width,screen_height,xspeed=5,health=100,cooldown_time=0.5):
         super().__init__()
         
@@ -37,7 +39,7 @@ class Spaceship(pygame.sprite.Sprite):
 
         self.bullets.draw(screen)
         pygame.draw.rect(screen,RED,(self.rect.left - 5,self.rect.bottom + 5,self.image.get_width() + 10,10))
-        pygame.draw.rect(screen,GREEN,(self.rect.left - 5,self.rect.bottom + 5,self.health/self.full_health * self.image.get_width() + 10,10))
+        pygame.draw.rect(screen,GREEN,(self.rect.left - 5,self.rect.bottom + 5,self.health/self.full_health * (self.image.get_width() + 10),10))
 
     
 
@@ -52,7 +54,7 @@ class Spaceship(pygame.sprite.Sprite):
 
 
     
-    def update(self,pressed_keys,alien_group,bullets_group):
+    def update(self,pressed_keys,alien_group,bullets_group,explosions):
         
         if self.cooldown:
             current_time = time.time()
@@ -75,11 +77,26 @@ class Spaceship(pygame.sprite.Sprite):
         self.bullets.update()
 
 
-        pygame.sprite.groupcollide(self.bullets,alien_group,True,True,collided=pygame.sprite.collide_mask)
+        collisions_enemy = pygame.sprite.groupcollide(self.bullets,alien_group,True,True,collided=pygame.sprite.collide_mask)
+
+        for _,alien_ships in collisions_enemy.items():
+            for alien_ship in alien_ships:
+                size = random.randint(1,3)
+                explosion = Explosion(*alien_ship.rect.center,size)
+                explosions.add(explosion)
+
 
         collisions = pygame.sprite.spritecollide(self,bullets_group,dokill=True,collided=pygame.sprite.collide_mask)
         if collisions:
             self.health -= 10
+            if self.health <= 0:
+                self.kill()
+                size = 3
+                explosions.add(Explosion(*self.rect.center,3))
+                return True
+
+        return False
+
 
 
 
