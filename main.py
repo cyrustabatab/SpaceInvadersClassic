@@ -27,7 +27,9 @@ def game():
 
 
     def reset():
-        nonlocal player_ship,aliens,game_over,started,seconds,seconds_text,start_time,second_text_rect
+        nonlocal player_ship,aliens,game_over,started,seconds,seconds_text,start_time,second_text_rect,wave,wave_text
+        wave = 1
+        wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
         player_ship = pygame.sprite.GroupSingle(Spaceship(WIDTH,HEIGHT))
         aliens = Aliens(WIDTH)
         started = False

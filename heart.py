@@ -22,3 +22,6 @@ class Heart(pygame.sprite.Sprite):
 
         self.rect.center += self.vel
 
+        if self.rect.top >= 800:
+            self.kill()
+
