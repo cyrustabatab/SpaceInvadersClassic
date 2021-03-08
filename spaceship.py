@@ -33,7 +33,9 @@ class Spaceship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(self.original_pos))
         self.cooldown = False
 
-    
+
+    def restore_health(self):
+        self.health = self.full_health
 
     def draw_health_bar_and_bullets(self,screen):
 
@@ -54,7 +56,7 @@ class Spaceship(pygame.sprite.Sprite):
 
 
     
-    def update(self,pressed_keys,alien_group,bullets_group,explosions):
+    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts):
         
         if self.cooldown:
             current_time = time.time()
@@ -94,6 +96,12 @@ class Spaceship(pygame.sprite.Sprite):
                 size = 3
                 explosions.add(Explosion(*self.rect.center,3))
                 return True
+        
+        
+        heart_collisions = pygame.sprite.spritecollide(self,hearts,dokill=True,collided=pygame.sprite.collide_mask)
+
+        self.health += len(heart_collisions) * 10
+        self.health = min(self.health,100)
 
         return False
 

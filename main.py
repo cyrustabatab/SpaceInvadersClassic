@@ -1,4 +1,4 @@
-import pygame,sys,os,time
+import pygame,sys,os,time,random
 pygame.init()
 
 WIDTH,HEIGHT = 600,800
@@ -7,6 +7,7 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 
 from spaceship import Spaceship
 from aliens import Aliens
+from heart import Heart
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -31,7 +32,7 @@ def game():
         aliens = Aliens(WIDTH)
         started = False
         game_over = False
-        seconds =3
+        #seconds =3
         seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
         second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
         start_time = time.time()
@@ -76,19 +77,65 @@ def game():
     aliens = Aliens(WIDTH)
 
     explosions = pygame.sprite.Group()
+    hearts = pygame.sprite.Group()
 
     game_over = False
     topleft=(0,0)
     red_transparent = (255,0,0,128)    
     started = False
 
-    start_time = time.time()
-    seconds =3
     texts = ["READY!","SET!","GO!"]
+    seconds = 3
     seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
     second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
-    start_sound.play()
+    
+    
 
+    
+
+    def display(wave):
+        
+        topleft = (0,0)
+        
+        wave_font = pygame.font.Font(os.path.join('assets','atari.ttf'),50)
+        gap = 50
+        wave_text_1 = font.render("WAVE",True,WHITE)
+        wave_text_2 = font.render(str(wave),True,WHITE)
+        wave_text_1_rect = wave_text_1.get_rect(center=(WIDTH//2,HEIGHT//2))
+        wave_text_2_rect = wave_text_2.get_rect(center=(WIDTH//2,wave_text_1_rect.bottom + gap))
+        screen.blit(background_image,topleft)
+        screen.blit(wave_text_1,wave_text_1_rect)
+        screen.blit(wave_text_2,wave_text_2_rect)
+
+        pygame.display.update()
+
+        
+        SECOND_EVENT = pygame.USEREVENT + 1
+        pygame.time.set_timer(SECOND_EVENT,1000)
+        seconds = 3
+        while True:
+
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == SECOND_EVENT:
+                    seconds -= 1
+                    if seconds == 0:
+                        pygame.time.set_timer(SECOND_EVENT,0)
+                        return
+
+
+
+    HEART_EVENT = pygame.USEREVENT + 2
+    milliseconds = 10000
+    pygame.time.set_timer(HEART_EVENT,10000)
+
+
+    display(wave)
+    start_time = time.time()
+    start_sound.play()
     while True:
         
 
@@ -99,6 +146,7 @@ def game():
                 if seconds == 0:
                     started = True
                     pygame.mixer.music.play(-1)
+                    seconds = 3
                 else:
                     seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
                     second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
@@ -114,14 +162,34 @@ def game():
                     reset()
                 elif menu_surface_rect.collidepoint(point):
                     return
+            elif started and not game_over and event.type == HEART_EVENT:
+                x,y=random.randint(0,WIDTH - 20),random.randint(-20,-10)
+                heart = Heart(x,y)
+                hearts.add(heart)
 
+        
         
         explosions.update()
         if started and not game_over:
+            hearts.update()
             pressed_keys = pygame.key.get_pressed()
             aliens.update()
-            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions) 
+            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts) 
+
+            if aliens.is_empty():
+                wave += 1
+                wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
+                player_ship.sprite.restore_health()
+                aliens.reset()
+                started = False
+                display(wave)
+                start_sound.play()
+                seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
+                start_time = time.time()
+
+
         screen.blit(background_image,topleft)
+        hearts.draw(screen)
         aliens.draw(screen)
         player_ship.draw(screen)
         explosions.draw(screen)
