@@ -34,8 +34,9 @@ class Spaceship(pygame.sprite.Sprite):
         self.cooldown = False
 
 
-    def restore_health(self):
+    def restore_health_and_remove_bullets(self):
         self.health = self.full_health
+        self.bullets.empty()
 
     def draw_health_bar_and_bullets(self,screen):
 

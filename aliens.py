@@ -45,6 +45,7 @@ class Aliens:
         self._create_aliens()
         self.bullets_fired += 1
         self.bullet_speed += 1
+        self.all_bullets.empty()
 
 
     def draw(self,screen):

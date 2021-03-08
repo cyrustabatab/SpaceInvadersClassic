@@ -24,6 +24,24 @@ background_image = pygame.image.load(os.path.join('assets','bg.png'))
 
 def game():
     
+    
+    high_score_file_name = "high_scores.txt"
+
+    with open(high_score_file_name,'r') as f:
+        high_scores = list(map(int,f.readlines()))
+    
+
+    def update_high_scores_if_necessary(score):
+
+        if score > high_scores[-1]:
+            high_scores.pop()
+            high_scores.append(score)
+            high_scores.sort(reverse=True)
+
+            with open(high_score_file_name,'w') as f:
+                for high_score in high_scores:
+                    f.write(str(high_score) + '\n')
+
 
 
     def reset():
@@ -177,11 +195,13 @@ def game():
             pressed_keys = pygame.key.get_pressed()
             aliens.update()
             game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts) 
-
+            if game_over:
+                update_high_scores_if_necessary(wave -1)
             if aliens.is_empty():
                 wave += 1
+                update_high_scores_if_necessary(wave -1)
                 wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
-                player_ship.sprite.restore_health()
+                player_ship.sprite.restore_health_and_remove_bullets()
                 aliens.reset()
                 started = False
                 display(wave)
