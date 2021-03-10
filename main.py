@@ -45,7 +45,7 @@ def game():
 
 
     def reset():
-        nonlocal player_ship,aliens,game_over,started,seconds,seconds_text,start_time,second_text_rect,wave,wave_text
+        nonlocal player_ship,aliens,game_over,started,seconds,seconds_text,start_time,second_text_rect,wave,wave_text,time_text,time_text_rect,time_passed
         wave = 1
         wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
         player_ship = pygame.sprite.GroupSingle(Spaceship(WIDTH,HEIGHT))
@@ -55,8 +55,12 @@ def game():
         #seconds =3
         seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
         second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
+        time_passed =0
+        time_text = second_font.render(str(time_passed),True,WHITE)
+        time_text_rect = time_text.get_rect(center=(WIDTH//2,second_top_gap + time_text.get_height()//2))
         start_time = time.time()
         start_sound.play()
+
     font = pygame.font.Font(os.path.join('assets','atari.ttf'),30)
     game_over_text = font.render("GAME OVER!",True,WHITE)
     gap_from_center = 50
@@ -111,6 +115,10 @@ def game():
     
     
 
+
+
+    
+
     
 
     def display(wave):
@@ -123,11 +131,6 @@ def game():
         wave_text_2 = font.render(str(wave),True,WHITE)
         wave_text_1_rect = wave_text_1.get_rect(center=(WIDTH//2,HEIGHT//2))
         wave_text_2_rect = wave_text_2.get_rect(center=(WIDTH//2,wave_text_1_rect.bottom + gap))
-        screen.blit(background_image,topleft)
-        screen.blit(wave_text_1,wave_text_1_rect)
-        screen.blit(wave_text_2,wave_text_2_rect)
-
-        pygame.display.update()
 
         
         SECOND_EVENT = pygame.USEREVENT + 1
@@ -145,8 +148,17 @@ def game():
                     if seconds == 0:
                         pygame.time.set_timer(SECOND_EVENT,0)
                         return
+            
+            explosions.update()
+            screen.blit(background_image,topleft)
+            screen.blit(wave_text_1,wave_text_1_rect)
+            screen.blit(wave_text_2,wave_text_2_rect)
 
+            pygame.display.update()
+            clock.tick(FPS)
+    
 
+    second_font = pygame.font.SysFont(os.path.join('assets','atari.ttf'),30)
 
     HEART_EVENT = pygame.USEREVENT + 2
     milliseconds = 10000
@@ -156,21 +168,39 @@ def game():
     display(wave)
     start_time = time.time()
     start_sound.play()
+    
+    time_passed = 0
+
+    time_text = second_font.render(str(time_passed),True,WHITE)
+    second_top_gap = 10
+    time_text_rect = time_text.get_rect(center=(WIDTH//2,second_top_gap + time_text.get_height()//2))
     while True:
         
 
+        current_time = time.time()
+
         if not started:
-            current_time = time.time()
             if current_time - start_time >= 1:
                 seconds -= 1
                 if seconds == 0:
                     started = True
                     pygame.mixer.music.play(-1)
                     seconds = 3
+                    start_time = current_time
                 else:
                     seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
                     second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
                     start_time = current_time
+        elif not game_over:
+            if current_time - start_time >= 1:
+                time_passed += 1
+                time_text = second_font.render(str(time_passed),True,WHITE)
+                time_text_rect = time_text.get_rect(center=(WIDTH//2,second_top_gap + time_text.get_height()//2))
+                start_time = current_time
+
+
+
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -203,7 +233,11 @@ def game():
                 wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
                 player_ship.sprite.restore_health_and_remove_bullets()
                 aliens.reset()
+                hearts.empty()
                 started = False
+                time_passed =0
+                time_text = second_font.render(str(time_passed),True,WHITE)
+                time_text_rect = time_text.get_rect(center=(WIDTH//2,second_top_gap + time_text.get_height()//2))
                 display(wave)
                 start_sound.play()
                 seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
@@ -216,6 +250,7 @@ def game():
         player_ship.draw(screen)
         explosions.draw(screen)
         screen.blit(wave_text,wave_text_rect)
+        screen.blit(time_text,time_text_rect)
         if  not game_over:
             player_ship.sprite.draw_health_bar_and_bullets(screen)
 
@@ -260,18 +295,56 @@ def high_score_screen():
 
 
     with open(file_name,'r') as f:
-        scores = list(map(int,f.readlines())
+        scores = list(map(int,f.readlines()))
+    
+    
+    scores_font = pygame.font.Font(os.path.join('assets','atari.ttf'),20)
+
+
+    
+
+
+
+
     high_scores_font = pygame.font.Font(os.path.join('assets','atari.ttf'),40)
     topleft= (0,0)
     
     top_gap = 50
     high_scores_text = high_scores_font.render("HIGH SCORES",True,WHITE)
-    screen.blit(background_image,topleft)
-    screen.blit(high_scores_text,(WIDTH//2 - high_scores_text.get_width()//2,top_gap))
+    
+    
+    transparent_red = (255,0,0,128)
+    menu_text = high_scores_font.render("MENU",True,WHITE)
+    menu_surface = pygame.Surface((menu_text.get_width() + 50,menu_text.get_height() + 50),pygame.SRCALPHA)
+    menu_surface.fill(RED)
+    menu_surface.blit(menu_text,(menu_surface.get_width()//2 - menu_text.get_width()//2,menu_surface.get_height()//2 - menu_text.get_height()//2))
+    menu_surface_rect = menu_surface.get_rect(center=(WIDTH//2,HEIGHT - 50 - menu_surface.get_height()//2))
+    
 
-    pygame.display.update()
+    def draw_scores():
+        screen.blit(background_image,topleft)
+        screen.blit(high_scores_text,(WIDTH//2 - high_scores_text.get_width()//2,top_gap))
+        gap_between = 90
+        gap_between_scores= 40
+        width = len(str(scores[0]))
+        for i in range(5):
+            score = scores[i]
+            score_text = high_scores_font.render(f"{i + 1}. {str(score)}",True,WHITE)
+            screen.blit(score_text,(gap_between,top_gap * 3 + (gap_between_scores + score_text.get_height()) * i))
+        
+        
+        first_width = None
+        for i in range(5,len(scores)):
+            score = scores[i]
+            score_text = high_scores_font.render(f"{i +1:>2}. {str(score)}",True,WHITE)
+            if first_width is None:
+                first_width = score_text.get_width()
+            screen.blit(score_text,(WIDTH - gap_between - first_width,top_gap * 3 + (gap_between_scores + score_text.get_height()) * (i - 5)))
+        
+        screen.blit(menu_surface,menu_surface_rect)
+        pygame.display.update()
+
     while True:
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -279,13 +352,33 @@ def high_score_screen():
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                point = pygame.mouse.get_pos()
+
+                if menu_surface_rect.collidepoint(point):
+                    return
+
+        
+
+        point = pygame.mouse.get_pos()
+
+        if menu_surface_rect.collidepoint(point):
+            menu_surface.fill(transparent_red)
+            menu_surface.blit(menu_text,(menu_surface.get_width()//2 - menu_text.get_width()//2,menu_surface.get_height()//2 - menu_text.get_height()//2))
+        else:
+            menu_surface.fill(RED)
+            menu_surface.blit(menu_text,(menu_surface.get_width()//2 - menu_text.get_width()//2,menu_surface.get_height()//2 - menu_text.get_height()//2))
 
 
 
 
 
+         
 
 
+
+        
+        draw_scores()
 def menu():
     title_font = pygame.font.Font(os.path.join('assets','atari.ttf'),40)
     top_gap = 50
