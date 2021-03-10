@@ -253,11 +253,60 @@ def game():
         clock.tick(FPS)
 
 
+def high_score_screen():
+    
+
+    file_name = "high_scores.txt"
+
+
+    with open(file_name,'r') as f:
+        scores = list(map(int,f.readlines())
+    high_scores_font = pygame.font.Font(os.path.join('assets','atari.ttf'),40)
+    topleft= (0,0)
+    
+    top_gap = 50
+    high_scores_text = high_scores_font.render("HIGH SCORES",True,WHITE)
+    screen.blit(background_image,topleft)
+    screen.blit(high_scores_text,(WIDTH//2 - high_scores_text.get_width()//2,top_gap))
+
+    pygame.display.update()
+    while True:
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+
+
+
+
+
+
+
 def menu():
     title_font = pygame.font.Font(os.path.join('assets','atari.ttf'),40)
     top_gap = 50
     title_text = title_font.render("SPACE INVADERS",True,WHITE)
     
+
+    transparent_red = (255,0,0,128)
+
+    high_scores_text = title_font.render("HIGH SCORES",True,WHITE)
+
+    high_scores_text_surface = pygame.Surface((high_scores_text.get_width() + 50,high_scores_text.get_height() + 50),pygame.SRCALPHA)
+    high_scores_text_rect = high_scores_text.get_rect(center=(high_scores_text_surface.get_width()//2,high_scores_text_surface.get_height()//2))
+     
+    high_scores_text_surface.fill(RED)
+    high_scores_text_surface_rect = high_scores_text_surface.get_rect(center=(WIDTH//2,HEIGHT - top_gap - high_scores_text_surface.get_height()//2))
+    high_scores_text_surface.blit(high_scores_text,high_scores_text_rect)
+
+
+    alpha_high_score_text_surface = pygame.Surface(high_scores_text.get_size(),pygame.SRCALPHA)
+    alpha_high_score_text_surface.fill((255,0,0,128))
+
 
     title_text_rect= title_text.get_rect(center=(WIDTH//2,top_gap + title_text.get_height()//2))
     
@@ -283,6 +332,11 @@ def menu():
                     game()
                     pygame.mixer.music.load(os.path.join('assets','intro.ogg'))
                     pygame.mixer.music.play(-1)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                point = pygame.mouse.get_pos()
+
+                if high_scores_text_surface_rect.collidepoint(point):
+                    high_score_screen()
 
          
         
@@ -294,12 +348,25 @@ def menu():
         else:
             alpha = 255
 
+        
+        point = pygame.mouse.get_pos()
+        if high_scores_text_surface_rect.collidepoint(point):
+            high_scores_text_surface.fill(transparent_red)
+            high_scores_text_surface.blit(high_scores_text,high_scores_text_rect)
+        else:
+            high_scores_text_surface.fill(RED)
+            high_scores_text_surface.blit(high_scores_text,high_scores_text_rect)
+
+
+
 
         
         screen.blit(background_image,topleft)
 
         screen.blit(title_text,title_text_rect)
         screen.blit(enter_text_copy,enter_text_rect)
+
+        screen.blit(high_scores_text_surface,high_scores_text_surface_rect)
         pygame.display.update()
 
 
