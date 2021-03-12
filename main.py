@@ -8,6 +8,7 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 from spaceship import Spaceship
 from aliens import Aliens
 from heart import Heart
+from potion import InvincibilityPotion
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -50,6 +51,8 @@ def game():
         wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
         player_ship = pygame.sprite.GroupSingle(Spaceship(WIDTH,HEIGHT))
         aliens = Aliens(WIDTH)
+        #for sprite in items:
+            #sprite.kill()
         started = False
         game_over = False
         #seconds =3
@@ -102,6 +105,8 @@ def game():
 
     explosions = pygame.sprite.Group()
     hearts = pygame.sprite.Group()
+    potions = pygame.sprite.Group()
+    items = pygame.sprite.Group()
 
     game_over = False
     topleft=(0,0)
@@ -165,6 +170,7 @@ def game():
     pygame.time.set_timer(HEART_EVENT,10000)
 
 
+
     display(wave)
     start_time = time.time()
     start_sound.play()
@@ -213,18 +219,24 @@ def game():
                 elif menu_surface_rect.collidepoint(point):
                     return
             elif started and not game_over and event.type == HEART_EVENT:
-                x,y=random.randint(0,WIDTH - 20),random.randint(-20,-10)
-                heart = Heart(x,y)
-                hearts.add(heart)
+                if random.randint(1,2) == 1:
+                    x,y=random.randint(0,WIDTH - 20),random.randint(-20,-10)
+                    item = Heart(x,y)
+                    hearts.add(item)
+                else:
+                    item = InvincibilityPotion(WIDTH)
+                    potions.add(item)
+                items.add(item)
 
         
         
         explosions.update()
         if started and not game_over:
-            hearts.update()
+            items.update()
+            #hearts.update()
             pressed_keys = pygame.key.get_pressed()
             aliens.update()
-            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts) 
+            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions) 
             if game_over:
                 update_high_scores_if_necessary(wave -1)
             if aliens.is_empty():
@@ -232,8 +244,12 @@ def game():
                 update_high_scores_if_necessary(wave -1)
                 wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
                 player_ship.sprite.restore_health_and_remove_bullets()
+                #for sprite in items:
+                    #sprite.kill()
                 aliens.reset()
                 hearts.empty()
+                items.empty()
+                potions.empty()
                 started = False
                 time_passed =0
                 time_text = second_font.render(str(time_passed),True,WHITE)
@@ -245,9 +261,11 @@ def game():
 
 
         screen.blit(background_image,topleft)
-        hearts.draw(screen)
+        items.draw(screen)
+        #hearts.draw(screen)
         aliens.draw(screen)
-        player_ship.draw(screen)
+        if player_ship:
+            player_ship.sprite.draw(screen)
         explosions.draw(screen)
         screen.blit(wave_text,wave_text_rect)
         screen.blit(time_text,time_text_rect)

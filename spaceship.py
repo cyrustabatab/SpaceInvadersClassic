@@ -7,6 +7,7 @@ vec = pygame.math.Vector2
 
 GREEN = (0,255,0)
 RED = (255,0,0)
+BLUE =(0,0,255,128)
 
 
 class Spaceship(pygame.sprite.Sprite):
@@ -32,7 +33,19 @@ class Spaceship(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect(topleft=(self.original_pos))
         self.cooldown = False
+        self.transparent_surface = pygame.Surface((self.rect.width + 10,self.rect.height + 10),pygame.SRCALPHA)
+        self.transparent_rect = self.transparent_surface.get_rect(center=self.rect.center)
+        pygame.draw.circle(self.transparent_surface,BLUE,(self.transparent_rect.centerx - self.transparent_rect.x,self.transparent_rect.centery - self.transparent_rect.y),(self.transparent_rect.width )//2)
 
+        self.protected = False
+        self.protection_timer = 5
+    
+
+    def draw(self,screen):
+
+        screen.blit(self.image,self.rect)
+        if self.protected:
+            screen.blit(self.transparent_surface,self.transparent_rect)
 
     def restore_health_and_remove_bullets(self):
         self.health = self.full_health
@@ -57,8 +70,13 @@ class Spaceship(pygame.sprite.Sprite):
 
 
     
-    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts):
+    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions):
         
+        if self.protected:
+            current_time = time.time()
+            if current_time - self.protected_start >= self.protection_timer:
+                self.protected = False
+
         if self.cooldown:
             current_time = time.time()
             if current_time - self.bullet_fire_start_time >= self.cooldown_time:
@@ -75,34 +93,41 @@ class Spaceship(pygame.sprite.Sprite):
                 self.rect.right = self.screen_width
         if not self.cooldown and pressed_keys[pygame.K_SPACE]:
             self.fire_bullet()
-
+        
+        self.transparent_rect.center = self.rect.center
         
         self.bullets.update()
 
-
+        
         collisions_enemy = pygame.sprite.groupcollide(self.bullets,alien_group,True,True,collided=pygame.sprite.collide_mask)
-
         for _,alien_ships in collisions_enemy.items():
             for alien_ship in alien_ships:
                 size = random.randint(1,3)
                 explosion = Explosion(*alien_ship.rect.center,size)
                 explosions.add(explosion)
 
-
-        collisions = pygame.sprite.spritecollide(self,bullets_group,dokill=True,collided=pygame.sprite.collide_mask)
-        if collisions:
-            self.health -= 10
-            if self.health <= 0:
-                self.kill()
-                size = 3
-                explosions.add(Explosion(*self.rect.center,3))
-                return True
+        
+        if not self.protected:
+            collisions = pygame.sprite.spritecollide(self,bullets_group,dokill=True,collided=pygame.sprite.collide_mask)
+            if collisions:
+                self.health -= 10
+                if self.health <= 0:
+                    self.kill()
+                    size = 3
+                    explosions.add(Explosion(*self.rect.center,3))
+                    return True
         
         
         heart_collisions = pygame.sprite.spritecollide(self,hearts,dokill=True,collided=pygame.sprite.collide_mask)
-
+        
         self.health += len(heart_collisions) * 10
         self.health = min(self.health,100)
+
+        potion_collisions = pygame.sprite.spritecollide(self,potions,dokill=True,collided=pygame.sprite.collide_mask)
+
+        if potion_collisions:
+            self.protected = True
+            self.protected_start = time.time()
 
         return False
 
