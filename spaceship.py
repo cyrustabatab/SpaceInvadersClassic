@@ -70,7 +70,7 @@ class Spaceship(pygame.sprite.Sprite):
 
 
     
-    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions):
+    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses):
         
         if self.protected:
             current_time = time.time()
@@ -128,6 +128,14 @@ class Spaceship(pygame.sprite.Sprite):
         if potion_collisions:
             self.protected = True
             self.protected_start = time.time()
+
+
+        cross_collisions = pygame.sprite.spritecollide(self,crosses,dokill=True,collided=pygame.sprite.collide_mask)
+
+        if cross_collisions:
+            self.health = self.full_health
+
+
 
         return False
 

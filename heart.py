@@ -24,4 +24,7 @@ class Heart(pygame.sprite.Sprite):
 
         if self.rect.top >= 800:
             self.kill()
+    
+    def powerup(self,player):
+        pass
 
