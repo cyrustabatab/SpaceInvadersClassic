@@ -1,31 +1,20 @@
 import pygame,os,random
-
-vec = pygame.math.Vector2
-
-file_name = 'potion.png'
-
-class InvincibilityPotion(pygame.sprite.Sprite):
-
-    image = pygame.transform.scale(pygame.image.load(os.path.join('assets',file_name)),(40,40))
+from item import Item
 
 
-    def __init__(self,screen_width,speed=2):
-        super().__init__()
+
+class InvincibilityPotion(Item):
+
+    image_path = os.path.join('assets','potion.png')
+
+
+    def __init__(self,screen_width,screen_height,size=40):
+        super().__init__(self.image_path,screen_width,screen_height,size)
         
 
-        y = random.randint(-30,-20)
-        x = random.randint(0,screen_width - self.image.get_width())
-
-        self.vel = vec(0,speed)
-
-        self.rect = self.image.get_rect(topleft=(x,y))
-        self.mask = pygame.mask.from_surface(self.image)
-
-
+    def powerup(self,player):
+        player.make_invincible()
     
-    def update(self):
-
-        self.rect.topleft += self.vel
 
 
 

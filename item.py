@@ -1,4 +1,5 @@
 import pygame
+import random
 
 
 vec = pygame.math.Vector2
@@ -7,16 +8,19 @@ vec = pygame.math.Vector2
 class Item(pygame.sprite.Sprite):
 
 
-    def __init__(self,screen_width,image,speed=2):
+    def __init__(self,image_path,screen_width,screen_height,size,speed=2):
         super().__init__()
         
 
-        x = random.randint(0,screen_width - image.get_width())
-        y = random.randint(-image.get_height() * 2,-image.get_height())
+        self.image = pygame.image.load(image_path).convert_alpha()
+        self.image = pygame.transform.scale(self.image,(size,size))
 
 
-        self.image = image
+        x = random.randint(0,screen_width - self.image.get_width())
+        y = random.randint(-self.image.get_height() * 2,-self.image.get_height())
 
+
+        self.screen_height = screen_height
 
         self.rect = self.image.get_rect(topleft=(x,y))
 
@@ -26,5 +30,8 @@ class Item(pygame.sprite.Sprite):
     def update(self):
 
         self.rect.topleft += self.vel
+
+        if self.rect.top > self.screen_height:
+            self.kill()
     
 

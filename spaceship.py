@@ -2,6 +2,7 @@ import pygame,os,random
 from bullet import Bullet
 from explosion_animation import Explosion
 import time
+from star import Star
 
 vec = pygame.math.Vector2
 
@@ -39,8 +40,27 @@ class Spaceship(pygame.sprite.Sprite):
 
         self.protected = False
         self.protection_timer = 5
+        self.speedy = False
+        self.speed_time = 5
+    
+    def make_invincible(self):
+        self.protected = True
+        self.protected_start = time.time()
+
+    def double_speed(self):
+        if not self.speedy:
+            self.vel *= 2
+            self.speedy = True
+        self.speed_start_time = time.time()
+
     
 
+    def add_ten_health(self):
+        self.health = max(self.health + 10,self.full_health)
+    
+
+    def set_full_health(self):
+        self.health = self.full_health
     def draw(self,screen):
 
         screen.blit(self.image,self.rect)
@@ -70,18 +90,22 @@ class Spaceship(pygame.sprite.Sprite):
 
 
     
-    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses):
+    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses,items):
         
+        current_time = time.time()
         if self.protected:
-            current_time = time.time()
             if current_time - self.protected_start >= self.protection_timer:
                 self.protected = False
 
         if self.cooldown:
-            current_time = time.time()
             if current_time - self.bullet_fire_start_time >= self.cooldown_time:
                 self.cooldown = False
 
+        
+        if self.speedy:
+            if current_time - self.speed_start_time >= self.speed_time:
+                self.vel /= 2
+                self.speedy = False
 
         if pressed_keys[pygame.K_LEFT]:
             self.rect.topleft -= self.vel
@@ -116,8 +140,13 @@ class Spaceship(pygame.sprite.Sprite):
                     size = 3
                     explosions.add(Explosion(*self.rect.center,3))
                     return True
-        
-        
+    
+
+        item_collisions = pygame.sprite.spritecollide(self,items,dokill=True,collided=pygame.sprite.collide_mask)
+
+        for item in item_collisions:
+            item.powerup(self)
+        ''' 
         heart_collisions = pygame.sprite.spritecollide(self,hearts,dokill=True,collided=pygame.sprite.collide_mask)
         
         self.health += len(heart_collisions) * 10
@@ -135,7 +164,7 @@ class Spaceship(pygame.sprite.Sprite):
         if cross_collisions:
             self.health = self.full_health
 
-
+        '''
 
         return False
 

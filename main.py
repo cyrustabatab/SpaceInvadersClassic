@@ -10,6 +10,7 @@ from aliens import Aliens
 from heart import Heart
 from potion import InvincibilityPotion
 from cross import Cross
+from star import Star
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -76,7 +77,9 @@ def game():
     wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
     wave_text_rect= wave_text.get_rect(topright=(WIDTH-10,10))
 
+    
 
+    item_types = [Heart,InvincibilityPotion,Cross,Star]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -221,17 +224,15 @@ def game():
                 elif menu_surface_rect.collidepoint(point):
                     return
             elif started and not game_over and event.type == HEART_EVENT:
-                if random.randint(1,50) == 1:
+                if random.randint(1,25) == 1:
                     item = Cross(WIDTH)
                     crosses.add(item)
-                elif random.randint(1,2) == 1:
-                    x,y=random.randint(0,WIDTH - 20),random.randint(-20,-10)
-                    item = Heart(x,y)
-                    hearts.add(item)
                 else:
-                    item = InvincibilityPotion(WIDTH)
-                    potions.add(item)
-                items.add(item)
+                    number = random.randint(0,len(item_types) -1)
+                    class_ =item_types[number] 
+                    item = class_(WIDTH,HEIGHT)
+                    items.add(item)
+
 
         
         
@@ -241,7 +242,7 @@ def game():
             #hearts.update()
             pressed_keys = pygame.key.get_pressed()
             aliens.update()
-            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses) 
+            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items) 
             if game_over:
                 update_high_scores_if_necessary(wave -1)
             if aliens.is_empty():
