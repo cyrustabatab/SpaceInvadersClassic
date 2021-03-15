@@ -1,5 +1,6 @@
 import pygame,os,random
 from bullet import Bullet
+from torpedo import Torpedo
 from explosion_animation import Explosion
 import time
 from star import Star
@@ -22,6 +23,7 @@ class Spaceship(pygame.sprite.Sprite):
 
         self.mask = pygame.mask.from_surface(self.image)
         self.screen_width = screen_width
+        self.screen_height = screen_height
         
         self.health = health
         self.full_health = self.health
@@ -42,7 +44,22 @@ class Spaceship(pygame.sprite.Sprite):
         self.protection_timer = 5
         self.speedy = False
         self.speed_time = 5
+        self.torpedo = pygame.sprite.GroupSingle()
+        self.has_torpedo = False
     
+
+    def add_torpedo(self):
+        if not self.has_torpedo:
+            self.has_torpedo = True
+    
+    def fire_torpedo(self):
+
+        if not self.torpedo.sprite:
+            torpedo = Torpedo(self.rect.centerx,self.rect.y)
+            self.torpedo.sprite = torpedo
+            self.has_torpedo = False
+
+
     def make_invincible(self):
         self.protected = True
         self.protected_start = time.time()
@@ -53,20 +70,23 @@ class Spaceship(pygame.sprite.Sprite):
             self.speedy = True
         self.speed_start_time = time.time()
 
-    
 
     def add_ten_health(self):
         self.health = max(self.health + 10,self.full_health)
-    
 
     def set_full_health(self):
         self.health = self.full_health
+
     def draw(self,screen):
 
         screen.blit(self.image,self.rect)
         if self.protected:
             screen.blit(self.transparent_surface,self.transparent_rect)
+        if self.torpedo:
+            self.torpedo.draw(screen)
 
+        if self.has_torpedo:
+            screen.blit(Torpedo.image,(5,self.screen_height - Torpedo.image.get_height() - 5))
     def restore_health_and_remove_bullets(self):
         self.health = self.full_health
         self.bullets.empty()
@@ -121,8 +141,26 @@ class Spaceship(pygame.sprite.Sprite):
         self.transparent_rect.center = self.rect.center
         
         self.bullets.update()
-
         
+
+        self.torpedo.update() 
+        collisions_enemy_torpedo = None
+        if self.torpedo.sprite:
+        
+
+            collisions_enemy_torpedo = pygame.sprite.spritecollide(self.torpedo.sprite,alien_group,True,collided=pygame.sprite.collide_mask)
+
+            if collisions_enemy_torpedo:
+                alien_ship = collisions_enemy_torpedo[0]
+                size = random.randint(1,3)
+                explosion = Explosion(*alien_ship.rect.center,size)
+                explosions.add(explosion)
+
+
+            
+        
+        
+
         collisions_enemy = pygame.sprite.groupcollide(self.bullets,alien_group,True,True,collided=pygame.sprite.collide_mask)
         for _,alien_ships in collisions_enemy.items():
             for alien_ship in alien_ships:

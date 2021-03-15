@@ -11,6 +11,7 @@ from heart import Heart
 from potion import InvincibilityPotion
 from cross import Cross
 from star import Star
+from torpedo import TorpedoPowerUp
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -79,7 +80,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -124,6 +125,7 @@ def game():
     second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
     
     
+    game_over_music = pygame.mixer.Sound(os.path.join('assets','Retro_No hope.ogg'))
 
 
 
@@ -220,18 +222,23 @@ def game():
             elif game_over and event.type == pygame.MOUSEBUTTONDOWN:
                 point = pygame.mouse.get_pos()
                 if play_again_surface_rect.collidepoint(point):
+                    game_over_music.stop()
                     reset()
                 elif menu_surface_rect.collidepoint(point):
+                    game_over_music.stop()
                     return
             elif started and not game_over and event.type == HEART_EVENT:
                 if random.randint(1,25) == 1:
-                    item = Cross(WIDTH)
+                    item = Cross(WIDTH,HEIGHT)
                     crosses.add(item)
                 else:
-                    number = random.randint(0,len(item_types) -1)
+                    number = random.randint(len(item_types) - 1,len(item_types) -1)
                     class_ =item_types[number] 
                     item = class_(WIDTH,HEIGHT)
                     items.add(item)
+            elif started and not game_over and player_ship.sprite.has_torpedo and event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                player_ship.sprite.fire_torpedo()
+
 
 
         
@@ -244,6 +251,8 @@ def game():
             aliens.update()
             game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items) 
             if game_over:
+                pygame.mixer.music.stop()
+                game_over_music.play()
                 update_high_scores_if_necessary(wave -1)
             if aliens.is_empty():
                 wave += 1

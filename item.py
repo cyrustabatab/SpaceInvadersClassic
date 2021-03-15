@@ -8,12 +8,14 @@ vec = pygame.math.Vector2
 class Item(pygame.sprite.Sprite):
 
 
-    def __init__(self,image_path,screen_width,screen_height,size,speed=2):
+    def __init__(self,image_path,screen_width,screen_height,size,speed=2,rotate=0):
         super().__init__()
         
 
         self.image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.image,(size,size))
+        if rotate:
+            self.image = pygame.transform.rotate(self.image,rotate)
 
 
         x = random.randint(0,screen_width - self.image.get_width())
