@@ -10,13 +10,16 @@ vec = pygame.math.Vector2
 GREEN = (0,255,0)
 RED = (255,0,0)
 BLUE =(0,0,255,128)
+WHITE = (255,0,0)
 
 
 class Spaceship(pygame.sprite.Sprite):
 
     image = pygame.image.load(os.path.join('assets','spaceship.png'))
     laser_sound = pygame.mixer.Sound(os.path.join('assets','laser.wav'))
+    power_up_sound = pygame.mixer.Sound(os.path.join('assets','Powerup.wav'))
     laser_sound.set_volume(0.3)
+    font = pygame.font.Font(os.path.join('assets','atari.ttf'),20)
     def __init__(self,screen_width,screen_height,xspeed=5,health=100,cooldown_time=0.5):
         super().__init__()
         
@@ -41,12 +44,23 @@ class Spaceship(pygame.sprite.Sprite):
         pygame.draw.circle(self.transparent_surface,BLUE,(self.transparent_rect.centerx - self.transparent_rect.x,self.transparent_rect.centery - self.transparent_rect.y),(self.transparent_rect.width )//2)
 
         self.protected = False
+        self.protected_bubble = False
+        self.hits_allowed = 0
         self.protection_timer = 5
         self.speedy = False
         self.speed_time = 5
         self.torpedo = pygame.sprite.GroupSingle()
         self.has_torpedo = False
     
+
+
+    def add_five_hit_protection(self):
+        self.protected = True
+        self.hits_allowed = 5
+        self.hits_allowed_text = self.font.render(str(self.hits_allowed),True,WHITE)
+
+
+
 
     def add_torpedo(self):
         if not self.has_torpedo:
@@ -61,7 +75,7 @@ class Spaceship(pygame.sprite.Sprite):
 
 
     def make_invincible(self):
-        self.protected = True
+        self.protected_bubble = True
         self.protected_start = time.time()
 
     def double_speed(self):
@@ -87,6 +101,9 @@ class Spaceship(pygame.sprite.Sprite):
 
         if self.has_torpedo:
             screen.blit(Torpedo.image,(5,self.screen_height - Torpedo.image.get_height() - 5))
+
+        if self.hits_allowed:
+            screen.blit(self.hits_allowed_text,(self.rect.x,self.rect.y))
     def restore_health_and_remove_bullets(self):
         self.health = self.full_health
         self.bullets.empty()
@@ -113,7 +130,7 @@ class Spaceship(pygame.sprite.Sprite):
     def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses,items):
         
         current_time = time.time()
-        if self.protected:
+        if self.protected_bubble:
             if current_time - self.protected_start >= self.protection_timer:
                 self.protected = False
 
@@ -151,6 +168,7 @@ class Spaceship(pygame.sprite.Sprite):
             collisions_enemy_torpedo = pygame.sprite.spritecollide(self.torpedo.sprite,alien_group,True,collided=pygame.sprite.collide_mask)
 
             if collisions_enemy_torpedo:
+                self.power_up_sound.play()
                 alien_ship = collisions_enemy_torpedo[0]
                 size = random.randint(1,3)
                 explosion = Explosion(*alien_ship.rect.center,size)
@@ -169,21 +187,34 @@ class Spaceship(pygame.sprite.Sprite):
                 explosions.add(explosion)
 
         
-        if not self.protected:
+        if not self.protected_bubble:
             collisions = pygame.sprite.spritecollide(self,bullets_group,dokill=True,collided=pygame.sprite.collide_mask)
             if collisions:
-                self.health -= 10
-                if self.health <= 0:
-                    self.kill()
-                    size = 3
-                    explosions.add(Explosion(*self.rect.center,3))
-                    return True
+                
+
+                if self.hits_allowed:
+                    self.hits_allowed -= len(collisions)
+
+                    self.hits_allowed_text = self.font.render(str(self.hits_allowed),True,WHITE)
+                    if self.hits_allowed <= 0:
+                        self.protected = False
+                        self.health -= abs(self.hits_allowed) * 10
+                else:
+                    self.health -= 10 * len(collisions)
+                    if self.health <= 0:
+                        self.kill()
+                        size = 3
+                        explosions.add(Explosion(*self.rect.center,3))
+                        return True
     
 
         item_collisions = pygame.sprite.spritecollide(self,items,dokill=True,collided=pygame.sprite.collide_mask)
+        
+        if item_collisions:
+            self.power_up_sound.play()
+            for item in item_collisions:
+                item.powerup(self)
 
-        for item in item_collisions:
-            item.powerup(self)
         ''' 
         heart_collisions = pygame.sprite.spritecollide(self,hearts,dokill=True,collided=pygame.sprite.collide_mask)
         

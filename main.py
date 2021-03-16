@@ -12,6 +12,9 @@ from potion import InvincibilityPotion
 from cross import Cross
 from star import Star
 from torpedo import TorpedoPowerUp
+from button import Button
+from text import Text
+from safety import Safety
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -80,7 +83,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -412,6 +415,62 @@ def high_score_screen():
 
         
         draw_scores()
+
+
+def instructions_screen():
+    
+    
+    text_group = pygame.sprite.Group()
+    
+    font_path = os.path.join('assets','atari.ttf')
+    title_font_size = 40
+
+    title_text = Text("HOW TO PLAY",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
+    text_group.add(title_text)
+    screen.blit(background_image,(0,0))
+
+    menu_button = Button("MENU",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
+    power_ups_button = Button("POWER UPS",WIDTH//2,HEIGHT - 220,WHITE,RED,None,title_font_size)
+
+
+    button_group = pygame.sprite.Group(menu_button,power_ups_button)
+    
+
+
+    while True:
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                point = pygame.mouse.get_pos()
+                
+
+                for button in button_group:
+                    if button.clicked_on(point):
+                        if button.callback:
+                            button.callback()
+                        else:
+                            return
+
+
+
+        point = pygame.mouse.get_pos()
+        button_group.update(point)
+        screen.blit(background_image,(0,0))
+        
+
+        text_group.draw(screen)
+        button_group.draw(screen)
+
+        pygame.display.update()
+
+
+
 def menu():
     title_font = pygame.font.Font(os.path.join('assets','atari.ttf'),40)
     top_gap = 50
@@ -445,6 +504,16 @@ def menu():
     
     alpha_surface = pygame.Surface(enter_text.get_size(),pygame.SRCALPHA)
     alpha = 255
+    
+    title_font_size = 40
+
+    
+
+    buttons = pygame.sprite.Group()
+    button_1 = Button("HOW TO PLAY",WIDTH//2,high_scores_text_surface_rect.top - 100,WHITE,RED,instructions_screen,title_font_size)
+    button_2 = Button("HIGH SCORES",WIDTH//2,HEIGHT - top_gap - 50,WHITE,RED,high_score_screen,title_font_size)
+    buttons.add(button_1)
+    buttons.add(button_2)
 
     while True:
 
@@ -460,9 +529,12 @@ def menu():
                     pygame.mixer.music.play(-1)
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 point = pygame.mouse.get_pos()
-
-                if high_scores_text_surface_rect.collidepoint(point):
-                    high_score_screen()
+                
+                for button in buttons:
+                    if button.clicked_on(point):
+                        button.callback()
+                #if high_scores_text_surface_rect.collidepoint(point):
+                    #high_score_screen()
 
          
         
@@ -483,7 +555,8 @@ def menu():
             high_scores_text_surface.fill(RED)
             high_scores_text_surface.blit(high_scores_text,high_scores_text_rect)
 
-
+        
+        buttons.update(point)
 
 
         
@@ -492,7 +565,8 @@ def menu():
         screen.blit(title_text,title_text_rect)
         screen.blit(enter_text_copy,enter_text_rect)
 
-        screen.blit(high_scores_text_surface,high_scores_text_surface_rect)
+        #screen.blit(high_scores_text_surface,high_scores_text_surface_rect)
+        buttons.draw(screen)
         pygame.display.update()
 
 
