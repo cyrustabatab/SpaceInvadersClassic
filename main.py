@@ -11,10 +11,12 @@ from heart import Heart
 from potion import InvincibilityPotion
 from cross import Cross
 from star import Star
+from skull import Skull
 from torpedo import TorpedoPowerUp
 from button import Button
 from text import Text
 from safety import Safety
+from bomb import Bomb
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -83,7 +85,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,Bomb]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)

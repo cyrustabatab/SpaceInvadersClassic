@@ -20,6 +20,7 @@ class Spaceship(pygame.sprite.Sprite):
     power_up_sound = pygame.mixer.Sound(os.path.join('assets','Powerup.wav'))
     laser_sound.set_volume(0.3)
     font = pygame.font.Font(os.path.join('assets','atari.ttf'),20)
+
     def __init__(self,screen_width,screen_height,xspeed=5,health=100,cooldown_time=0.5):
         super().__init__()
         
@@ -84,6 +85,11 @@ class Spaceship(pygame.sprite.Sprite):
             self.speedy = True
         self.speed_start_time = time.time()
 
+    
+    def die(self,explosions):
+        self.kill()
+        size = 3
+        explosions.add(Explosion(*self.rect.center,3))
 
     def add_ten_health(self):
         self.health = max(self.health + 10,self.full_health)
@@ -107,6 +113,10 @@ class Spaceship(pygame.sprite.Sprite):
     def restore_health_and_remove_bullets(self):
         self.health = self.full_health
         self.bullets.empty()
+    
+
+    def instant_die(self):
+        self.health = 0
 
     def draw_health_bar_and_bullets(self,screen):
 
@@ -202,9 +212,7 @@ class Spaceship(pygame.sprite.Sprite):
                 else:
                     self.health -= 10 * len(collisions)
                     if self.health <= 0:
-                        self.kill()
-                        size = 3
-                        explosions.add(Explosion(*self.rect.center,3))
+                        self.die(explosions)
                         return True
     
 
@@ -214,7 +222,11 @@ class Spaceship(pygame.sprite.Sprite):
             self.power_up_sound.play()
             for item in item_collisions:
                 item.powerup(self)
+        
 
+        if self.health <= 0:
+            self.die(explosions)
+            return True
         ''' 
         heart_collisions = pygame.sprite.spritecollide(self,hearts,dokill=True,collided=pygame.sprite.collide_mask)
         
