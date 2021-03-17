@@ -52,13 +52,41 @@ class Spaceship(pygame.sprite.Sprite):
         self.speed_time = 5
         self.torpedo = pygame.sprite.GroupSingle()
         self.has_torpedo = False
+        self.is_frozen = False
+        self.poisoned = False
+
     
+    
+    def poison(self,seconds=5):
+        self.poison_time = seconds
+
+        self.poisoned = True
+        self.poisoned_start_time = time.time()
+        self.last_poison_time = self.poisoned_start_time
+
+
+
+
+
+
 
 
     def add_five_hit_protection(self):
         self.protected = True
         self.hits_allowed = 5
         self.hits_allowed_text = self.font.render(str(self.hits_allowed),True,WHITE)
+
+    
+
+    def freeze(self,seconds=5):
+        self.frozen_timer = seconds
+
+        self.frozen_start = time.time()
+
+        self.is_frozen = True
+
+
+
 
 
 
@@ -153,17 +181,33 @@ class Spaceship(pygame.sprite.Sprite):
             if current_time - self.speed_start_time >= self.speed_time:
                 self.vel /= 2
                 self.speedy = False
+        
 
-        if pressed_keys[pygame.K_LEFT]:
-            self.rect.topleft -= self.vel
-            if self.rect.left < 0:
-                self.rect.left = 0
-        if pressed_keys[pygame.K_RIGHT]:
-            self.rect.topright += self.vel
-            if self.rect.right > self.screen_width:
-                self.rect.right = self.screen_width
-        if not self.cooldown and pressed_keys[pygame.K_SPACE]:
-            self.fire_bullet()
+        if self.is_frozen:
+            if current_time - self.frozen_start >= self.frozen_timer:
+                self.is_frozen = False
+        
+        if self.poisoned:
+
+            if current_time - self.poisoned_start_time >= self.poison_time:
+                self.poisoned = False
+            elif current_time - self.last_poison_time >= 1:
+                self.last_poison_time = current_time
+                self.health -= 2
+        
+
+
+        if not self.is_frozen:
+            if pressed_keys[pygame.K_LEFT]:
+                self.rect.topleft -= self.vel
+                if self.rect.left < 0:
+                    self.rect.left = 0
+            if pressed_keys[pygame.K_RIGHT]:
+                self.rect.topright += self.vel
+                if self.rect.right > self.screen_width:
+                    self.rect.right = self.screen_width
+            if not self.cooldown and pressed_keys[pygame.K_SPACE]:
+                self.fire_bullet()
         
         self.transparent_rect.center = self.rect.center
         
