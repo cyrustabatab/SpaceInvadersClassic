@@ -19,6 +19,7 @@ from safety import Safety
 from bomb import Bomb
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
+from free_movement import FreeMovement
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -85,7 +86,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,Bomb,Snowflake,PoisonMuk]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,Bomb,Snowflake,PoisonMuk,FreeMovement]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -233,7 +234,7 @@ def game():
                     game_over_music.stop()
                     return
             elif started and not game_over and event.type == HEART_EVENT:
-                if random.randint(1,1) == 1:
+                if random.randint(1,25) == 1:
                     item = Cross(WIDTH,HEIGHT)
                     items.add(item)
                 else:

@@ -32,8 +32,8 @@ class Alien(pygame.sprite.Sprite):
 
     
     def fire_bullet(self,bullet_speed):
-
-        bullet = Bullet(self.rect.centerx,self.rect.bottom,bullet_speed)
+        bullet_speed = 3
+        bullet = Bullet(self.rect.centerx,self.rect.bottom,True,ydirection=1,speed=bullet_speed)
         return bullet
 
     

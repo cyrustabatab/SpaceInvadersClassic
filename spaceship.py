@@ -4,6 +4,7 @@ from torpedo import Torpedo
 from explosion_animation import Explosion
 import time
 from star import Star
+from copy import copy
 
 vec = pygame.math.Vector2
 
@@ -24,7 +25,8 @@ class Spaceship(pygame.sprite.Sprite):
     def __init__(self,screen_width,screen_height,xspeed=5,health=100,cooldown_time=0.5):
         super().__init__()
         
-
+        
+        self.original_image = self.image.copy() 
         self.mask = pygame.mask.from_surface(self.image)
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -36,8 +38,9 @@ class Spaceship(pygame.sprite.Sprite):
 
         self.bullets = pygame.sprite.Group()        
         self.vel = vec(xspeed,0)
+        self.original_vel = vec(0,-1)
         self.cooldown_time = cooldown_time
-
+        
         self.rect = self.image.get_rect(topleft=(self.original_pos))
         self.cooldown = False
         self.transparent_surface = pygame.Surface((self.rect.width + 10,self.rect.height + 10),pygame.SRCALPHA)
@@ -54,8 +57,28 @@ class Spaceship(pygame.sprite.Sprite):
         self.has_torpedo = False
         self.is_frozen = False
         self.poisoned = False
+        self.can_turn = True
+
+        self.angle = 0
+        self.rotation_speed = 1.8#1.8
+        self.direction = 0
 
     
+
+    def set_rotation(self):
+        if self.direction == 1:
+            self.angle -= self.rotation_speed
+        elif self.direction == -1:
+            self.angle += self.rotation_speed
+        self.image = pygame.transform.rotate(self.original_image,self.angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
+    
+
+    def get_rotation(self):
+        if self.direction == 1:
+            self.original_vel.rotate_ip(self.rotation_speed)
+        elif self.direction == -1:
+            self.original_vel.rotate_ip(-self.rotation_speed)
     
     def poison(self,seconds=5):
         self.poison_time = seconds
@@ -87,6 +110,11 @@ class Spaceship(pygame.sprite.Sprite):
 
 
 
+    
+    def allow_turning(self,seconds=10):
+        self.turning_timer = seconds
+        self.can_turn = True
+        self.original_vel = copy(self.vel)
 
 
 
@@ -158,7 +186,10 @@ class Spaceship(pygame.sprite.Sprite):
         
         self.laser_sound.play()
         self.bullet_fire_start_time = time.time()
-        bullet = Bullet(self.rect.centerx,self.rect.top)
+        if not self.can_turn:
+            bullet = Bullet(self.rect.centerx,self.rect.top,ydirection=self.original_vel.y,xdirection=self.original_vel.x)
+        else:
+            bullet = Bullet(self.rect.centerx,self.rect.centery,ydirection=self.original_vel.y,xdirection=self.original_vel.x,angle=self.angle)
         self.bullets.add(bullet)
         self.cooldown = True
         self.bullet_fire_start_time = time.time()
@@ -167,6 +198,7 @@ class Spaceship(pygame.sprite.Sprite):
     
     def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses,items):
         
+
         current_time = time.time()
         if self.protected_bubble:
             if current_time - self.protected_start >= self.protection_timer:
@@ -194,7 +226,10 @@ class Spaceship(pygame.sprite.Sprite):
             elif current_time - self.last_poison_time >= 1:
                 self.last_poison_time = current_time
                 self.health -= 2
-        
+    
+        if self.can_turn:
+            self.set_rotation()
+            self.get_rotation()
 
 
         if not self.is_frozen:
@@ -206,6 +241,15 @@ class Spaceship(pygame.sprite.Sprite):
                 self.rect.topright += self.vel
                 if self.rect.right > self.screen_width:
                     self.rect.right = self.screen_width
+            if pressed_keys[pygame.K_a]:
+                self.direction = -1
+            elif pressed_keys[pygame.K_d]:
+                self.direction = 1
+            else:
+                self.direction = 0
+
+
+            
             if not self.cooldown and pressed_keys[pygame.K_SPACE]:
                 self.fire_bullet()
         
