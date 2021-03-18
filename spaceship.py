@@ -12,6 +12,7 @@ GREEN = (0,255,0)
 RED = (255,0,0)
 BLUE =(0,0,255,128)
 WHITE = (255,0,0)
+BLACK = (0,0,0)
 
 
 class Spaceship(pygame.sprite.Sprite):
@@ -40,7 +41,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.vel = vec(xspeed,0)
         self.original_vel = vec(0,-1)
         self.cooldown_time = cooldown_time
-        
+
         self.rect = self.image.get_rect(topleft=(self.original_pos))
         self.cooldown = False
         self.transparent_surface = pygame.Surface((self.rect.width + 10,self.rect.height + 10),pygame.SRCALPHA)
@@ -62,6 +63,15 @@ class Spaceship(pygame.sprite.Sprite):
         self.angle = 0
         self.rotation_speed = 1.8#1.8
         self.direction = 0
+        
+
+        
+        self.health_surface = pygame.Surface(self.image.get_size(),pygame.SRCALPHA)
+        self.health_surface_rect = self.health_surface.get_rect(topleft=self.rect.topleft)
+        pygame.draw.rect(self.health_surface,RED,(0,self.health_surface.get_height() - 10,self.health_surface.get_width(),10))
+        pygame.draw.rect(self.health_surface,GREEN,(0,self.health_surface.get_height() - 10,(self.health/self.full_health) * self.rect.width,10))
+        self.original_health_surface = self.health_surface.copy()
+
 
     
 
@@ -72,6 +82,15 @@ class Spaceship(pygame.sprite.Sprite):
             self.angle += self.rotation_speed
         self.image = pygame.transform.rotate(self.original_image,self.angle)
         self.rect = self.image.get_rect(center=self.rect.center)
+        
+
+        self.original_health_surface.fill((255,255,255,0))
+        pygame.draw.rect(self.original_health_surface,RED,(0,self.original_health_surface.get_height() - 10,self.rect.width,10))
+        pygame.draw.rect(self.original_health_surface,GREEN,(0,self.original_health_surface.get_height() - 10,(self.health/self.full_health) * self.original_health_surface.get_width(),10))
+        self.health_surface = pygame.transform.rotate(self.original_health_surface,self.angle)
+        self.health_surface_rect = self.health_surface.get_rect(center=self.health_surface_rect.center)
+        #self.health_bar_image = pygame.transform.rotate(self.original_health_bar_image,self.angle)
+        #self.health_bar_rect = self.health_bar_image.get_rect(center=self.health_bar_rect.center)
     
 
     def get_rotation(self):
@@ -176,9 +195,11 @@ class Spaceship(pygame.sprite.Sprite):
 
     def draw_health_bar_and_bullets(self,screen):
 
+        
         self.bullets.draw(screen)
-        pygame.draw.rect(screen,RED,(self.rect.left - 5,self.rect.bottom + 5,self.image.get_width() + 10,10))
-        pygame.draw.rect(screen,GREEN,(self.rect.left - 5,self.rect.bottom + 5,self.health/self.full_health * (self.image.get_width() + 10),10))
+        #pygame.draw.rect(screen,RED,(self.rect.left - 5,self.rect.bottom + 5,self.image.get_width() + 10,10))
+        #pygame.draw.rect(screen,GREEN,(self.rect.left - 5,self.rect.bottom + 5,self.health/self.full_health * (self.image.get_width() + 10),10))
+        screen.blit(self.health_surface,self.health_surface_rect)
 
     
 
@@ -235,12 +256,17 @@ class Spaceship(pygame.sprite.Sprite):
         if not self.is_frozen:
             if pressed_keys[pygame.K_LEFT]:
                 self.rect.topleft -= self.vel
+                self.health_surface_rect.topleft -= self.vel
                 if self.rect.left < 0:
                     self.rect.left = 0
+                    self.health_surface_rect.left = 0
+
             if pressed_keys[pygame.K_RIGHT]:
                 self.rect.topright += self.vel
+                self.health_surface_rect.topright += self.vel
                 if self.rect.right > self.screen_width:
                     self.rect.right = self.screen_width
+                    self.health_surface_rect.right = self.screen_width
             if pressed_keys[pygame.K_a]:
                 self.direction = -1
             elif pressed_keys[pygame.K_d]:
@@ -303,7 +329,6 @@ class Spaceship(pygame.sprite.Sprite):
                         self.die(explosions)
                         return True
     
-
         item_collisions = pygame.sprite.spritecollide(self,items,dokill=True,collided=pygame.sprite.collide_mask)
         
         if item_collisions:
@@ -315,6 +340,10 @@ class Spaceship(pygame.sprite.Sprite):
         if self.health <= 0:
             self.die(explosions)
             return True
+
+        
+        
+        
         ''' 
         heart_collisions = pygame.sprite.spritecollide(self,hearts,dokill=True,collided=pygame.sprite.collide_mask)
         

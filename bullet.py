@@ -33,9 +33,6 @@ class Bullet(pygame.sprite.Sprite):
         self.y += self.vel.y
         self.rect.center = (self.x,self.y)
 
-        if not self.alien:
-            print("vel",self.vel)
-            print("pos",self.rect.topleft)
         if self.rect.bottom < 0 or self.rect.top > 800:
             self.kill()
 
