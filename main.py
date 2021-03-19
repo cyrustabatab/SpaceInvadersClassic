@@ -420,6 +420,59 @@ def high_score_screen():
         draw_scores()
 
 
+def power_up_screen():
+
+    
+
+    font_path = os.path.join('assets','atari.ttf')
+    title_font_size = 40
+    
+
+    text_group = pygame.sprite.Group()
+    title_text = Text("POWER UPS",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
+
+    text_group.add(title_text)
+    menu_button = Button("BACK",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
+
+    
+    button_group = pygame.sprite.Group(menu_button)
+
+
+
+
+
+    while True:
+
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                point = pygame.mouse.get_pos()
+
+                for button in button_group:
+                    if button.clicked_on(point):
+                        if button.callback:
+                            button.callback()
+                        else:
+                            return
+
+
+        screen.blit(background_image,(0,0))
+        
+        
+        point = pygame.mouse.get_pos()
+        button_group.update(point)
+        
+        text_group.draw(screen)
+        button_group.draw(screen)
+
+        pygame.display.update()
+
+
 def instructions_screen():
     
     
@@ -433,7 +486,7 @@ def instructions_screen():
     screen.blit(background_image,(0,0))
 
     menu_button = Button("MENU",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
-    power_ups_button = Button("POWER UPS",WIDTH//2,HEIGHT - 220,WHITE,RED,None,title_font_size)
+    power_ups_button = Button("POWER UPS",WIDTH//2,HEIGHT - 220,WHITE,RED,power_up_screen,title_font_size)
 
 
     button_group = pygame.sprite.Group(menu_button,power_ups_button)
@@ -479,6 +532,9 @@ def menu():
     top_gap = 50
     title_text = title_font.render("SPACE INVADERS",True,WHITE)
     
+
+
+    moon_image = pygame.image.load(os.path.join('assets','hjm-moon','01.png')).convert_alpha()
 
     transparent_red = (255,0,0,128)
 
@@ -561,10 +617,10 @@ def menu():
         
         buttons.update(point)
 
-
         
         screen.blit(background_image,topleft)
-
+        
+        screen.blit(moon_image,(WIDTH//2 - moon_image.get_width()//2,title_text_rect.y))
         screen.blit(title_text,title_text_rect)
         screen.blit(enter_text_copy,enter_text_rect)
 
