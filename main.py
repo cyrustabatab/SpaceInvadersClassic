@@ -1,4 +1,4 @@
-import pygame,sys,os,time,random
+import pygame,sys,os,time,random,math
 pygame.init()
 
 WIDTH,HEIGHT = 600,800
@@ -20,6 +20,7 @@ from bomb import Bomb
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
+from moon import Moon
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -244,6 +245,8 @@ def game():
                     items.add(item)
             elif started and not game_over and player_ship.sprite.has_torpedo and event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 player_ship.sprite.fire_torpedo()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
 
 
 
@@ -421,6 +424,63 @@ def high_score_screen():
 
 
 def power_up_screen():
+    
+    
+
+    def load_items():
+
+        
+        
+        item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,Bomb,Snowflake,PoisonMuk,FreeMovement]
+        
+        item_type_index = 0
+
+        items_group = pygame.sprite.Group() 
+
+    
+        top_gap = 250
+            
+        gap_between_items = 20
+        rows = 5
+        size = 40
+        side_gap = (WIDTH - (size + gap_between_items) * rows)//2
+        print("NUMBER OF ITEMS",len(item_types))
+        for row in range(math.ceil(len(item_types)/rows)):
+            for col in range(rows):
+                item = item_types[item_type_index](WIDTH,HEIGHT)
+
+                item.rect.x = side_gap + (col * (size + gap_between_items))
+                item.rect.y = top_gap + (row * (size + gap_between_items))
+                item_type_index += 1
+
+                if item_type_index == len(item_types):
+                    break
+
+                items_group.add(item)
+            else:
+                continue
+
+            break
+
+            
+
+
+        return items_group
+
+
+
+
+
+
+
+
+
+
+
+    items_group = load_items()
+        
+
+
 
     
 
@@ -429,7 +489,7 @@ def power_up_screen():
     
 
     text_group = pygame.sprite.Group()
-    title_text = Text("POWER UPS",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
+    title_text = Text("ITEMS UPS",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
 
     text_group.add(title_text)
     menu_button = Button("BACK",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
@@ -464,9 +524,13 @@ def power_up_screen():
         screen.blit(background_image,(0,0))
         
         
+
+
         point = pygame.mouse.get_pos()
         button_group.update(point)
         
+
+        items_group.draw(screen)
         text_group.draw(screen)
         button_group.draw(screen)
 
@@ -486,7 +550,7 @@ def instructions_screen():
     screen.blit(background_image,(0,0))
 
     menu_button = Button("MENU",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
-    power_ups_button = Button("POWER UPS",WIDTH//2,HEIGHT - 220,WHITE,RED,power_up_screen,title_font_size)
+    power_ups_button = Button("ITEMS",WIDTH//2,HEIGHT - 220,WHITE,RED,power_up_screen,title_font_size)
 
 
     button_group = pygame.sprite.Group(menu_button,power_ups_button)
@@ -532,9 +596,22 @@ def menu():
     top_gap = 50
     title_text = title_font.render("SPACE INVADERS",True,WHITE)
     
+    
+    def load_moon_images():
+        directory = os.path.join('assets','hjm-moon')
+
+        moon_images = []
+        for file_ in os.listdir(directory):
+            moon_image = pygame.image.load(os.path.join(directory,file_)).convert_alpha()
+            moon_images.append(moon_image)
+
+        return moon_images
 
 
-    moon_image = pygame.image.load(os.path.join('assets','hjm-moon','01.png')).convert_alpha()
+
+    
+
+
 
     transparent_red = (255,0,0,128)
 
@@ -566,6 +643,8 @@ def menu():
     
     title_font_size = 40
 
+    moon = Moon(WIDTH//2,title_text_rect.bottom + 150)
+    moon = pygame.sprite.GroupSingle(moon)
     
 
     buttons = pygame.sprite.Group()
@@ -573,7 +652,10 @@ def menu():
     button_2 = Button("HIGH SCORES",WIDTH//2,HEIGHT - top_gap - 50,WHITE,RED,high_score_screen,title_font_size)
     buttons.add(button_1)
     buttons.add(button_2)
-
+        
+    MOON_CHANGE_EVENT = pygame.USEREVENT + 4
+    milliseconds = 200
+    pygame.time.set_timer(MOON_CHANGE_EVENT,milliseconds)
     while True:
 
         for event in pygame.event.get():
@@ -594,6 +676,8 @@ def menu():
                         button.callback()
                 #if high_scores_text_surface_rect.collidepoint(point):
                     #high_score_screen()
+            elif event.type == MOON_CHANGE_EVENT:
+                moon.update()
 
          
         
@@ -620,7 +704,8 @@ def menu():
         
         screen.blit(background_image,topleft)
         
-        screen.blit(moon_image,(WIDTH//2 - moon_image.get_width()//2,title_text_rect.y))
+
+        moon.draw(screen)
         screen.blit(title_text,title_text_rect)
         screen.blit(enter_text_copy,enter_text_rect)
 
