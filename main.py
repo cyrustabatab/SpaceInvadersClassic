@@ -444,7 +444,7 @@ def power_up_screen():
         rows = 5
         size = 40
         side_gap = (WIDTH - (size + gap_between_items) * rows)//2
-        print("NUMBER OF ITEMS",len(item_types))
+        print(len(item_types)/rows)
         for row in range(math.ceil(len(item_types)/rows)):
             for col in range(rows):
                 item = item_types[item_type_index](WIDTH,HEIGHT)
@@ -453,10 +453,10 @@ def power_up_screen():
                 item.rect.y = top_gap + (row * (size + gap_between_items))
                 item_type_index += 1
 
+                items_group.add(item)
                 if item_type_index == len(item_types):
                     break
 
-                items_group.add(item)
             else:
                 continue
 
@@ -489,7 +489,7 @@ def power_up_screen():
     
 
     text_group = pygame.sprite.Group()
-    title_text = Text("ITEMS UPS",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
+    title_text = Text("ITEMS",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
 
     text_group.add(title_text)
     menu_button = Button("BACK",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
