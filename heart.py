@@ -13,6 +13,14 @@ class Heart(Item):
     def image_path(self):
         return os.path.join('assets','heart.png')
     
+    
+
+    @property
+    def text(self):
+        text = "Adds 10 HP"
+        WHITE = (255,255,255)
+        return self.font.render(text,True,WHITE)
+
     def powerup(self,player):
         player.add_ten_health()
 

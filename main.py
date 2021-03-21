@@ -449,8 +449,9 @@ def power_up_screen():
             for col in range(rows):
                 item = item_types[item_type_index](WIDTH,HEIGHT)
 
-                item.rect.x = side_gap + (col * (size + gap_between_items))
-                item.rect.y = top_gap + (row * (size + gap_between_items))
+                x= side_gap + (col * (size + gap_between_items))
+                y= top_gap + (row * (size + gap_between_items))
+                item.change_rects_topleft(x,y)
                 item_type_index += 1
 
                 items_group.add(item)
@@ -472,7 +473,7 @@ def power_up_screen():
 
 
 
-
+    
 
 
 
@@ -499,11 +500,13 @@ def power_up_screen():
 
 
 
-
+    
 
     while True:
 
+        
 
+        text = None
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -523,10 +526,21 @@ def power_up_screen():
 
         screen.blit(background_image,(0,0))
         
-        
-
 
         point = pygame.mouse.get_pos()
+
+
+        for item in items_group:
+            if item.is_hovered_on(point):
+                text = item.text
+
+
+        
+        if text:
+            screen.blit(text,(WIDTH//2- text.get_width()//2,150))
+
+
+
         button_group.update(point)
         
 

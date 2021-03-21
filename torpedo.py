@@ -34,6 +34,13 @@ class TorpedoPowerUp(Item):
     @property
     def image_path(self):
         return os.path.join('assets','torpedoTed.png')
+    
+
+    @property
+    def text(self):
+        text = "POWERFUL PERSISTENT WEAPON"
+        WHITE = (255,255,255)
+        return self.font.render(text,True,WHITE)
 
     def powerup(self,player):
         player.add_torpedo()
