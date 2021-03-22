@@ -5,6 +5,7 @@ from explosion_animation import Explosion
 import time
 from star import Star
 from copy import copy
+from bomb import Bomb
 
 vec = pygame.math.Vector2
 
@@ -34,6 +35,7 @@ class Spaceship(pygame.sprite.Sprite):
         
         self.health = health
         self.full_health = self.health
+        self.coins_collected = 0
         bottom_gap = 10
         self.original_pos = (self.screen_width//2 - self.image.get_width()//2,screen_height - bottom_gap - self.image.get_height())
 
@@ -63,6 +65,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.angle = 0
         self.rotation_speed = 1.8#1.8
         self.direction = 0
+        self.items = []
         
 
         
@@ -71,9 +74,35 @@ class Spaceship(pygame.sprite.Sprite):
         pygame.draw.rect(self.health_surface,RED,(0,self.health_surface.get_height() - 10,self.health_surface.get_width(),10))
         pygame.draw.rect(self.health_surface,GREEN,(0,self.health_surface.get_height() - 10,(self.health/self.full_health) * self.rect.width,10))
         self.original_health_surface = self.health_surface.copy()
+        self.has_bomb = False
+    
+    
 
+    def add_bomb(self):
+        if not self.has_bomb and not self.has_torpedo:
+            self.has_bomb = True
+
+
+    def fire_bomb(self):
+        self.pressed_down_start = time.time()
+    
+    def release_bomb(self):
+        released_up = time.time()
+
+        time_elapsed = released_up - self.pressed_down_start
+        print(time_elapsed)
+        target_y = self.screen_height - time_elapsed * 200 # 100 pixels for every second held
+        self.has_bomb = False
+
+
+        self.torpedo.sprite = Bomb(self.rect.centerx,self.screen_height,target_y)
 
     
+
+
+
+    def increment_coins(self):
+        self.coins_collected += 1
 
     def set_rotation(self):
         if self.direction == 1:

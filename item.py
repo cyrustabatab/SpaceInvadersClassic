@@ -17,9 +17,13 @@ class Item(pygame.sprite.Sprite,ABC):
         super().__init__()
         
 
+
         self.image = pygame.image.load(self.image_path).convert_alpha()
+        if size <= 0:
+            size = self.image.get_width()
         self.big_image = pygame.transform.scale(self.image,(size + 15,size + 15))
-        self.image = pygame.transform.scale(self.image,(size,size))
+        if size > 0:
+            self.image = pygame.transform.scale(self.image,(size,size))
         if rotate:
             self.image = pygame.transform.rotate(self.image,rotate)
 

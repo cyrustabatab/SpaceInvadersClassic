@@ -8,7 +8,13 @@ class Safety(Item):
     #def __init__(self,screen_width,screen_height,size=40):
         #super().__init__(self.image_path,screen_width,screen_height,size)
     
+    
 
+    @property
+    def text(self):
+        text = "PROTECT FROM FIVE HITS"
+        WHITE  = (255,255,255)
+        return self.font.render(text,True,WHITE)
 
     @property
     def image_path(self):

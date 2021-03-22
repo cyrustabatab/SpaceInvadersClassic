@@ -22,3 +22,6 @@ class Text(pygame.sprite.Sprite):
 
     
 
+    def get_height(self):
+        return self.image.get_height()
+

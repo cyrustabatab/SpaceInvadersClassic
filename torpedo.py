@@ -1,6 +1,7 @@
 import pygame
 from item import Item
 import os
+import textwrap
 
 vec = pygame.math.Vector2
 
@@ -38,9 +39,14 @@ class TorpedoPowerUp(Item):
 
     @property
     def text(self):
-        text = "POWERFUL PERSISTENT WEAPON"
+        text = "POWERFUL PERSISTENT WEAPON THAT IS NOT DESTROYED ON IMPACT WITH ENEMIES. HIT ENTER TO USE AND CAN ONLY HOLD ONE TORPEDO AT A TIME."
+        phrases = textwrap.wrap(text,30)
         WHITE = (255,255,255)
-        return self.font.render(text,True,WHITE)
+        texts = []
+        for phrase in phrases:
+            text = self.font.render(phrase,True,WHITE)
+            texts.append(text)
+        return texts
 
     def powerup(self,player):
         player.add_torpedo()

@@ -5,6 +5,7 @@ WIDTH,HEIGHT = 600,800
 FPS = 60
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 
+import textwrap
 from spaceship import Spaceship
 from aliens import Aliens
 from heart import Heart
@@ -16,11 +17,12 @@ from torpedo import TorpedoPowerUp
 from button import Button
 from text import Text
 from safety import Safety
-from bomb import Bomb
+from bomb import BombPowerUp
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
 from moon import Moon
+from coin import Coin
 
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
@@ -52,6 +54,23 @@ def game():
             with open(high_score_file_name,'w') as f:
                 for high_score in high_scores:
                     f.write(str(high_score) + '\n')
+        
+    
+    coin_image = pygame.image.load(os.path.join('assets','gold_coin_animation','gold_coin_round_blank_1.png')).convert_alpha()
+    coin_size = 20
+    coin_image = pygame.transform.scale(coin_image,(coin_size,coin_size))
+    coin_font = pygame.font.Font(os.path.join('assets','atari.ttf'),20)
+    def draw_coins_collected_topleft():
+        topleft = (5,5)
+        screen.blit(coin_image,topleft)
+        coin_text = coin_font.render(str(player_ship.sprite.coins_collected),True,WHITE)
+        screen.blit(coin_text,(10 + coin_image.get_width(),5))
+
+
+
+
+
+
 
 
 
@@ -87,7 +106,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,Bomb,Snowflake,PoisonMuk,FreeMovement]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement,Coin,BombPowerUp]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -234,7 +253,7 @@ def game():
                 elif menu_surface_rect.collidepoint(point):
                     game_over_music.stop()
                     return
-            elif started and not game_over and event.type == HEART_EVENT:
+            if started and not game_over and event.type == HEART_EVENT:
                 if random.randint(1,25) == 1:
                     item = Cross(WIDTH,HEIGHT)
                     items.add(item)
@@ -243,8 +262,13 @@ def game():
                     class_ =item_types[number] 
                     item = class_(WIDTH,HEIGHT)
                     items.add(item)
-            elif started and not game_over and player_ship.sprite.has_torpedo and event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                player_ship.sprite.fire_torpedo()
+            elif started and not game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                if player_ship.sprite.has_torpedo:
+                    player_ship.sprite.fire_torpedo()
+                elif player_ship.sprite.has_bomb:
+                    player_ship.sprite.fire_bomb()
+            elif player_ship.sprite.has_bomb and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+                player_ship.sprite.release_bomb()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return
 
@@ -290,6 +314,7 @@ def game():
         aliens.draw(screen)
         if player_ship:
             player_ship.sprite.draw(screen)
+            draw_coins_collected_topleft()
         explosions.draw(screen)
         screen.blit(wave_text,wave_text_rect)
         screen.blit(time_text,time_text_rect)
@@ -431,14 +456,14 @@ def power_up_screen():
 
         
         
-        item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,Bomb,Snowflake,PoisonMuk,FreeMovement]
+        item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement]
         
         item_type_index = 0
 
         items_group = pygame.sprite.Group() 
 
     
-        top_gap = 250
+        top_gap = 450
             
         gap_between_items = 20
         rows = 5
@@ -490,9 +515,12 @@ def power_up_screen():
     
 
     text_group = pygame.sprite.Group()
+    hover_font_size = 20
     title_text = Text("ITEMS",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
+    hover_text = Text("HOVER OVER ITEMS FOR DETAILS",WIDTH//2,100,font_path,hover_font_size,WHITE,center_coordinate=True)
 
     text_group.add(title_text)
+    text_group.add(hover_text)
     menu_button = Button("BACK",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
 
     
@@ -537,7 +565,12 @@ def power_up_screen():
 
         
         if text:
-            screen.blit(text,(WIDTH//2- text.get_width()//2,150))
+            if isinstance(text,list):
+                start = 150
+                for i,t in enumerate(text):
+                    screen.blit(t,(WIDTH//2 - t.get_width()//2,150 + (i * (t.get_height() + 20))))
+            else:
+                screen.blit(text,(WIDTH//2- text.get_width()//2,150))
 
 
 
@@ -560,14 +593,34 @@ def instructions_screen():
     title_font_size = 40
 
     title_text = Text("HOW TO PLAY",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
+    
+    
+    instructions = "HIT SPACEBAR TO FIRE MISSILES TOWARDS ENEMIES. USE THE LEFT AND RIGHT ARROW TO MOVE LEFT AND RIGHT. COLLECT POWERUPS FOR BOOSTS AND AVOIDTHE HARMFUL ITEMS. DEFEAT A WAVE TO MOVE ON TO THE NEXT ONE."
+
+    width = 28
+    texts = textwrap.wrap(instructions,width)
+
+    gap = 40
+    start = 50 + title_text.get_height()//2 +  gap
+    instruction_font_size = 20
+    gap = 20
+    for i,text in enumerate(texts):
+        text_sprite = Text(text,WIDTH//2,start + i * (instruction_font_size + 20),font_path,instruction_font_size,WHITE,center_coordinate=True)
+        text_group.add(text_sprite)
+    
+
+
+
+
     text_group.add(title_text)
     screen.blit(background_image,(0,0))
 
     menu_button = Button("MENU",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
     power_ups_button = Button("ITEMS",WIDTH//2,HEIGHT - 220,WHITE,RED,power_up_screen,title_font_size)
+    enemies_button = Button("ENEMIES",WIDTH//2,HEIGHT - 340,WHITE,RED,power_up_screen,title_font_size)
 
 
-    button_group = pygame.sprite.Group(menu_button,power_ups_button)
+    button_group = pygame.sprite.Group(menu_button,power_ups_button,enemies_button)
     
 
 
