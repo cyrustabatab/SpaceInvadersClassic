@@ -57,6 +57,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.speedy = False
         self.speed_time = 5
         self.torpedo = pygame.sprite.GroupSingle()
+        self.bomb = pygame.sprite.GroupSingle()
         self.has_torpedo = False
         self.is_frozen = False
         self.poisoned = False
@@ -90,12 +91,11 @@ class Spaceship(pygame.sprite.Sprite):
         released_up = time.time()
 
         time_elapsed = released_up - self.pressed_down_start
-        print(time_elapsed)
         target_y = self.screen_height - time_elapsed * 200 # 100 pixels for every second held
         self.has_bomb = False
 
 
-        self.torpedo.sprite = Bomb(self.rect.centerx,self.screen_height,target_y)
+        self.bomb.sprite = Bomb(self.rect.centerx,self.screen_height,target_y)
 
     
 
@@ -209,8 +209,16 @@ class Spaceship(pygame.sprite.Sprite):
         if self.torpedo:
             self.torpedo.draw(screen)
 
+        if self.bomb:
+            self.bomb.draw(screen)
+
         if self.has_torpedo:
             screen.blit(Torpedo.image,(5,self.screen_height - Torpedo.image.get_height() - 5))
+
+        if self.has_bomb:
+            screen.blit(Bomb.image,(5,self.screen_height - Bomb.image.get_height() - 5))
+
+
 
         if self.hits_allowed:
             screen.blit(self.hits_allowed_text,(self.rect.x,self.rect.y))
@@ -313,6 +321,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.bullets.update()
         
 
+        self.bomb.update(alien_group,explosions)
         self.torpedo.update() 
         collisions_enemy_torpedo = None
         if self.torpedo.sprite:

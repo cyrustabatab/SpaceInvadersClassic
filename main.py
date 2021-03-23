@@ -267,7 +267,7 @@ def game():
                     player_ship.sprite.fire_torpedo()
                 elif player_ship.sprite.has_bomb:
                     player_ship.sprite.fire_bomb()
-            elif player_ship.sprite.has_bomb and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+            elif started and not game_over and player_ship.sprite.has_bomb and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
                 player_ship.sprite.release_bomb()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 return
@@ -584,6 +584,51 @@ def power_up_screen():
         pygame.display.update()
 
 
+def enemies_screen():
+    
+    topleft = (0,0)
+    screen.blit(background_image,topleft)
+    font_path = os.path.join('assets','atari.ttf')
+    title_font_size = 40
+    title_text = Text("ENEMIES",WIDTH//2,50,font_path,title_font_size,WHITE,center_coordinate=True)
+    menu_button = Button("BACK",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
+        
+    button_group = pygame.sprite.Group(menu_button)
+    text = pygame.sprite.GroupSingle(title_text)
+
+    text.draw(screen)
+    pygame.display.update()
+
+    while True:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                return
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                point = pygame.mouse.get_pos()
+                for button in button_group:
+                    if button.clicked_on(point):
+                        if button.callback:
+                            button.callback()
+                        else:
+                            return
+
+        
+        screen.blit(background_image,topleft)
+         
+        point = pygame.mouse.get_pos()
+        button_group.update(point)
+        text.draw(screen)
+
+
+        button_group.draw(screen)
+        pygame.display.update()
+
+
+
 def instructions_screen():
     
     
@@ -617,7 +662,7 @@ def instructions_screen():
 
     menu_button = Button("MENU",WIDTH//2,HEIGHT - 100,WHITE,RED,None,title_font_size)
     power_ups_button = Button("ITEMS",WIDTH//2,HEIGHT - 220,WHITE,RED,power_up_screen,title_font_size)
-    enemies_button = Button("ENEMIES",WIDTH//2,HEIGHT - 340,WHITE,RED,power_up_screen,title_font_size)
+    enemies_button = Button("ENEMIES",WIDTH//2,HEIGHT - 340,WHITE,RED,enemies_screen,title_font_size)
 
 
     button_group = pygame.sprite.Group(menu_button,power_ups_button,enemies_button)
