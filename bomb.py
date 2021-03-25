@@ -36,8 +36,6 @@ class Bomb(pygame.sprite.Sprite):
     
     def explode(self,aliens,explosions):
 
-        
-
         self.tick_sound.stop()
         center = vec(*self.rect.center)
 
@@ -49,13 +47,9 @@ class Bomb(pygame.sprite.Sprite):
                 size = random.randint(1,3)
                 explosions.add(Explosion(*alien.rect.center,size))
 
-        
-
         size = 3
         explosions.add(Explosion(*self.rect.center,size))
         self.kill()
-
-
 
     
 

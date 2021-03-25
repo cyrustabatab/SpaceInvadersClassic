@@ -12,7 +12,7 @@ vec = pygame.math.Vector2
 GREEN = (0,255,0)
 RED = (255,0,0)
 BLUE =(0,0,255,128)
-WHITE = (255,0,0)
+WHITE = (255,255,255)
 BLACK = (0,0,0)
 
 
@@ -76,6 +76,7 @@ class Spaceship(pygame.sprite.Sprite):
         pygame.draw.rect(self.health_surface,GREEN,(0,self.health_surface.get_height() - 10,(self.health/self.full_health) * self.rect.width,10))
         self.original_health_surface = self.health_surface.copy()
         self.has_bomb = False
+        self.pressed_down_start = None
     
     
 
@@ -93,6 +94,7 @@ class Spaceship(pygame.sprite.Sprite):
         time_elapsed = released_up - self.pressed_down_start
         target_y = self.screen_height - time_elapsed * 200 # 100 pixels for every second held
         self.has_bomb = False
+        self.pressed_down_start = None
 
 
         self.bomb.sprite = Bomb(self.rect.centerx,self.screen_height,target_y)
@@ -134,11 +136,6 @@ class Spaceship(pygame.sprite.Sprite):
         self.poisoned = True
         self.poisoned_start_time = time.time()
         self.last_poison_time = self.poisoned_start_time
-
-
-
-
-
 
 
 
@@ -208,6 +205,14 @@ class Spaceship(pygame.sprite.Sprite):
             screen.blit(self.transparent_surface,self.transparent_rect)
         if self.torpedo:
             self.torpedo.draw(screen)
+        
+        
+        if self.pressed_down_start:
+            current_time = time.time()
+            elapsed = (current_time - self.pressed_down_start) * 200 #100 pixels movement for every second held down
+            elapsed = min(self.screen_height,elapsed)
+            pygame.draw.rect(screen,WHITE,(self.rect.x,self.rect.y -5,self.rect.width,5))
+            pygame.draw.rect(screen,BLUE,(self.rect.x,self.rect.y -5,self.rect.width * (elapsed/self.screen_height),5))
 
         if self.bomb:
             self.bomb.draw(screen)
@@ -217,6 +222,8 @@ class Spaceship(pygame.sprite.Sprite):
 
         if self.has_bomb:
             screen.blit(Bomb.image,(5,self.screen_height - Bomb.image.get_height() - 5))
+            if not self.pressed_down_start:
+                pygame.draw.rect(screen,WHITE,(self.rect.x,self.rect.y -5,self.rect.width,5))
 
 
 

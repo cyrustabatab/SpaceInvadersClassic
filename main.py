@@ -24,6 +24,7 @@ from free_movement import FreeMovement
 from moon import Moon
 from coin import Coin
 
+
 clock = pygame.time.Clock()
 title = "SPACE INVADERS"
 pygame.display.set_caption(title)
@@ -270,6 +271,7 @@ def game():
             elif started and not game_over and player_ship.sprite.has_bomb and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
                 player_ship.sprite.release_bomb()
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                start_sound.stop()
                 return
 
 
@@ -595,9 +597,95 @@ def enemies_screen():
         
     button_group = pygame.sprite.Group(menu_button)
     text = pygame.sprite.GroupSingle(title_text)
+    
+    
+    class Icon(pygame.sprite.Sprite):
 
-    text.draw(screen)
-    pygame.display.update()
+
+        def __init__(self,x,y,image,size=40):
+            super().__init__()
+
+            if type(image) == list:
+                self.images = image
+                for i,image in enumerate(self.images):
+                    self.images[i] = pygame.transform.scale(pygame.image.load(image).convert_alpha(),(size,size))
+
+                self.image = self.images[0]
+                self.multiple = True
+            else:
+                self.image = pygame.transform.scale(image,(size,size))
+                self.multiple = False
+
+
+
+            self.rect = self.image.get_rect(topleft=(x,y))
+
+
+
+    class MultipleIcon(pygame.sprite.Sprite):
+
+
+        def __init__(self,x,y,images,size=40):
+            super().__init__()
+            self.images = images
+            for i,image in enumerate(self.images):
+                self.images[i] = pygame.transform.scale(pygame.image.load(image).convert_alpha(),(size,size))
+
+            self.image = self.images[0]
+
+            self.rect = self.image.get_rect(topleft=(x,y))
+            self.image_index = 0
+            self.frame_counter = 0
+
+
+        def update(self):
+
+
+            self.frame_counter += 1
+
+            if self.frame_counter == FPS:
+                self.frame_counter = 0
+                self.image_index = (self.image_index + 1) % len(self.images)
+
+                self.image = self.images[self.image_index]
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+        
+
+    image_size = 60
+    left_gap = (WIDTH - image_size * 3)//2
+    top_gap = HEIGHT//2 + 50
+    
+
+    icons = pygame.sprite.Group()
+    
+    rows = cols = 1
+    
+    directory = os.path.join('assets','aliens')
+
+    file_names = [os.path.join(directory,file_name) for file_name in os.listdir(directory)]
+    images = [file_names]
+    print(len(file_names))
+    for row in range(rows):
+        for col in range(cols):
+            image = images[row * cols + col]
+            if isinstance(image,list):
+                icon = MultipleIcon(left_gap + (col * image_size),top_gap +row * image_size,image,image_size)
+            else:
+                icon = Icon(left_gap + (col * image_size),top_gap +row * image_size,image,image_size)
+            icons.add(icon)
 
     while True:
 
@@ -621,11 +709,15 @@ def enemies_screen():
          
         point = pygame.mouse.get_pos()
         button_group.update(point)
-        text.draw(screen)
+        icons.update()
 
+        text.draw(screen)
+        
 
         button_group.draw(screen)
+        icons.draw(screen)
         pygame.display.update()
+        clock.tick(FPS)
 
 
 
