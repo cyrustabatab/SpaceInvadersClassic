@@ -21,6 +21,8 @@ from bomb import BombPowerUp
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
+from enemy_spaceship import EnemySpaceShip
+
 from moon import Moon
 from coin import Coin
 
@@ -202,6 +204,8 @@ def game():
     HEART_EVENT = pygame.USEREVENT + 2
     milliseconds = 10000
     pygame.time.set_timer(HEART_EVENT,10000)
+    ENEMY_SHIP_EVENT = pygame.USEREVENT + 5
+    pygame.time.set_timer(ENEMY_SHIP_EVENT,15000)
 
 
 
@@ -214,6 +218,7 @@ def game():
     time_text = second_font.render(str(time_passed),True,WHITE)
     second_top_gap = 10
     time_text_rect = time_text.get_rect(center=(WIDTH//2,second_top_gap + time_text.get_height()//2))
+    enemy_ships = pygame.sprite.Group()
     while True:
         
 
@@ -254,15 +259,20 @@ def game():
                 elif menu_surface_rect.collidepoint(point):
                     game_over_music.stop()
                     return
-            if started and not game_over and event.type == HEART_EVENT:
-                if random.randint(1,25) == 1:
-                    item = Cross(WIDTH,HEIGHT)
-                    items.add(item)
-                else:
-                    number = random.randint(len(item_types) - 1,len(item_types) -1)
-                    class_ =item_types[number] 
-                    item = class_(WIDTH,HEIGHT)
-                    items.add(item)
+            if started and not game_over:
+                if event.type == HEART_EVENT:
+                    if random.randint(1,25) == 1:
+                        item = Cross(WIDTH,HEIGHT)
+                        items.add(item)
+                    else:
+                        number = random.randint(len(item_types) - 1,len(item_types) -1)
+                        class_ =item_types[number] 
+                        item = class_(WIDTH,HEIGHT)
+                        items.add(item)
+                elif event.type == ENEMY_SHIP_EVENT:
+                    enemy = EnemySpaceShip(WIDTH,HEIGHT)
+                    enemy_ships.add(enemy)
+
             elif started and not game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 if player_ship.sprite.has_torpedo:
                     player_ship.sprite.fire_torpedo()
@@ -284,6 +294,7 @@ def game():
             #hearts.update()
             pressed_keys = pygame.key.get_pressed()
             aliens.update()
+            enemy_ships.update()
             game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items) 
             if game_over:
                 pygame.mixer.music.stop()
@@ -311,6 +322,7 @@ def game():
 
 
         screen.blit(background_image,topleft)
+        enemy_ships.draw(screen)
         items.draw(screen)
         #hearts.draw(screen)
         aliens.draw(screen)
