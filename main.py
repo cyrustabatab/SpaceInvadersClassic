@@ -272,15 +272,15 @@ def game():
                 elif event.type == ENEMY_SHIP_EVENT:
                     enemy = EnemySpaceShip(WIDTH,HEIGHT)
                     enemy_ships.add(enemy)
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                    if player_ship.sprite.has_torpedo:
+                        player_ship.sprite.fire_torpedo()
+                    elif player_ship.sprite.has_bomb:
+                        player_ship.sprite.fire_bomb()
+                elif event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+                    player_ship.sprite.release_bomb()
 
-            elif started and not game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                if player_ship.sprite.has_torpedo:
-                    player_ship.sprite.fire_torpedo()
-                elif player_ship.sprite.has_bomb:
-                    player_ship.sprite.fire_bomb()
-            elif started and not game_over and player_ship.sprite.has_bomb and event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
-                player_ship.sprite.release_bomb()
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 start_sound.stop()
                 return
 
@@ -295,7 +295,7 @@ def game():
             pressed_keys = pygame.key.get_pressed()
             aliens.update()
             enemy_ships.update()
-            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items) 
+            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items,enemy_ships) 
             if game_over:
                 pygame.mixer.music.stop()
                 game_over_music.play()

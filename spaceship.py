@@ -259,9 +259,13 @@ class Spaceship(pygame.sprite.Sprite):
         self.cooldown = True
         self.bullet_fire_start_time = time.time()
 
-
     
-    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses,items):
+    def _add_explosion(self,point,explosions):
+        size = random.randint(1,3)
+        explosion = Explosion(*point,size)
+        explosions.add(explosion)
+    
+    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses,items,enemy_ships):
         
 
         current_time = time.time()
@@ -351,9 +355,15 @@ class Spaceship(pygame.sprite.Sprite):
         collisions_enemy = pygame.sprite.groupcollide(self.bullets,alien_group,True,True,collided=pygame.sprite.collide_mask)
         for _,alien_ships in collisions_enemy.items():
             for alien_ship in alien_ships:
-                size = random.randint(1,3)
-                explosion = Explosion(*alien_ship.rect.center,size)
-                explosions.add(explosion)
+                self._add_explosion(alien_ship.rect.center,explosions)
+        
+        collisions_ship = pygame.sprite.groupcollide(self.bullets,enemy_ships,True,True,collided=pygame.sprite.collide_mask)
+
+        # collision_enemy.update(collisions_ship)
+
+        for _,ships in collisions_ship.items():
+            for ship in ships:
+                self._add_explosion(ship.rect.center,explosions)
 
         
         if not self.protected_bubble:
