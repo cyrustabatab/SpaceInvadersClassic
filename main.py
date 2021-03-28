@@ -322,7 +322,8 @@ def game():
 
 
         screen.blit(background_image,topleft)
-        enemy_ships.draw(screen)
+        for enemy_ship in enemy_ships:
+            enemy_ship.draw(screen)
         items.draw(screen)
         #hearts.draw(screen)
         aliens.draw(screen)

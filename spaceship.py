@@ -67,6 +67,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.rotation_speed = 1.8#1.8
         self.direction = 0
         self.items = []
+        self.damage = 10
         
 
         
@@ -357,13 +358,14 @@ class Spaceship(pygame.sprite.Sprite):
             for alien_ship in alien_ships:
                 self._add_explosion(alien_ship.rect.center,explosions)
         
-        collisions_ship = pygame.sprite.groupcollide(self.bullets,enemy_ships,True,True,collided=pygame.sprite.collide_mask)
+        collisions_ship = pygame.sprite.groupcollide(self.bullets,enemy_ships,True,False,collided=pygame.sprite.collide_mask)
 
         # collision_enemy.update(collisions_ship)
 
         for _,ships in collisions_ship.items():
             for ship in ships:
-                self._add_explosion(ship.rect.center,explosions)
+                if ship.take_damage(self.damage):
+                    self._add_explosion(ship.rect.center,explosions)
 
         
         if not self.protected_bubble:
