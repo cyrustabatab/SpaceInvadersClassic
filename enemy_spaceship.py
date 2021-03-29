@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+import time
 
 vec = pygame.math.Vector2
 
@@ -19,15 +20,68 @@ def get_images(directory,size=60):
 
 
 
+
+class EnemySpaceShips:
+
+
+    def __init__(self):
+        self.ships = pygame.sprite.Group()
+        self.bullets = pygame.sprite.Group()
+
+
+    def add_ship(self,ship):    
+        self.ships.add(ship)
+
+
+    def add_bullet(self,bullet):
+        self.bullets.add(bullet)
+    
+
+    def draw(self,screen):
+
+
+        self.ships.draw(screen)
+        self.bullets.draw(screen)
+    
+    def update(self):
+
+        self.ships.update()
+        self.bullets.update()
+
+
+
+
+
 class EnemySpaceShip(pygame.sprite.Sprite):
     
     
     image_directory = os.path.join('assets','enemy_ships')
     images =get_images(image_directory)
 
+    class EnemyBullet(pygame.sprite.Sprite):
+
+
+        image = pygame.image.load(os.path.join('assets','enemy_ship_bullet.png')).convert_alpha()
+
+
+        def __init__(self,x,y,screen_height,speed,size=40):
+            super().__init__()
+            
+            self.image = pygame.transform.scale(self.image,(size,size))
+            self.screen_height = screen_height
+            self.rect = self.image.get_rect(center=(x,y))
+            self.vel  = vec(0,speed)
+    
+
+        def update(self):
+
+            self.rect.center += self.vel
+            if self.rect.top >= self.screen_height:
+                self.kill()
+
     def __init__(self,screen_width,screen_height,speed=2,health=100):
         super().__init__()
-
+        
         self.image = random.choice(self.images)
 
         y = random.randint(-40,-30)
@@ -39,6 +93,9 @@ class EnemySpaceShip(pygame.sprite.Sprite):
         self.screen_height = screen_height
         self.full_health = health
         self.health = health
+        self.start_time = time.time()
+        self.next_fire_time = random.randint(1,3) #fire beetween 1 and 3 seconds
+        self.bullets = pygame.sprite.Group()
     
     
     def take_damage(self,damage):
@@ -52,24 +109,35 @@ class EnemySpaceShip(pygame.sprite.Sprite):
 
         return False
 
-
+    
+    def fire_bullet(self):
+        bullet = EnemySpaceShip.EnemyBullet(*self.rect.center,self.screen_height,self.vel.y * 2)
+        self.bullets.add(bullet)
 
 
     def draw(self,screen):
 
-
-        screen.blit(self.image,self.rect)
         offset = 5
+
         pygame.draw.rect(screen,RED,(self.rect.left - offset,self.rect.bottom + offset,self.rect.width + offset,offset))
         pygame.draw.rect(screen,GREEN,(self.rect.left - offset,self.rect.bottom + offset,(self.health/self.full_health) * (self.rect.width + offset),offset))
+        self.bullets.draw(screen)
+        screen.blit(self.image,self.rect)
 
 
     
 
     def update(self):
+        
 
+        current_time = time.time()
+
+        if current_time -  self.start_time >= self.next_fire_time:
+            self.fire_bullet()
+            self.start_time = current_time
         self.rect.center  += self.vel
-
+        
+        self.bullets.update()
 
         if self.rect.top >= self.screen_height:
             self.kill()

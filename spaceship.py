@@ -361,11 +361,19 @@ class Spaceship(pygame.sprite.Sprite):
         collisions_ship = pygame.sprite.groupcollide(self.bullets,enemy_ships,True,False,collided=pygame.sprite.collide_mask)
 
         # collision_enemy.update(collisions_ship)
-
+        
         for _,ships in collisions_ship.items():
             for ship in ships:
                 if ship.take_damage(self.damage):
                     self._add_explosion(ship.rect.center,explosions)
+        
+        
+        for ship in enemy_ships:
+            bullets = pygame.sprite.spritecollide(self,ship.bullets,dokill=True)
+            self.health -= 10 * len(bullets)
+            if self.health <= 0:
+                self.die(explosions)
+                return True
 
         
         if not self.protected_bubble:

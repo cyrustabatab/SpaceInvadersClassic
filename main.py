@@ -21,7 +21,8 @@ from bomb import BombPowerUp
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
-from enemy_spaceship import EnemySpaceShip
+from enemy_spaceship import EnemySpaceShip,EnemySpaceShips
+
 
 from moon import Moon
 from coin import Coin
@@ -142,6 +143,10 @@ def game():
     potions = pygame.sprite.Group()
     items = pygame.sprite.Group()
     crosses = pygame.sprite.Group()
+
+
+
+    ships = EnemySpaceShips()
 
     game_over = False
     topleft=(0,0)
