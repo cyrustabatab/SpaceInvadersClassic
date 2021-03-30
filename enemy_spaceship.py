@@ -145,7 +145,8 @@ class EnemySpaceShip(pygame.sprite.Sprite):
 
 
 
-
+class RocketShip(EnemySpaceShip):
+    pass
 
 
 

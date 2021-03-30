@@ -39,6 +39,7 @@ class Spaceship(pygame.sprite.Sprite):
         bottom_gap = 10
         self.original_pos = (self.screen_width//2 - self.image.get_width()//2,screen_height - bottom_gap - self.image.get_height())
 
+        self.ship_collision_loss = 50
         self.bullets = pygame.sprite.Group()        
         self.vel = vec(xspeed,0)
         self.original_vel = vec(0,-1)
@@ -367,6 +368,11 @@ class Spaceship(pygame.sprite.Sprite):
                 if ship.take_damage(self.damage):
                     self._add_explosion(ship.rect.center,explosions)
         
+
+        
+
+
+        
         
         for ship in enemy_ships:
             bullets = pygame.sprite.spritecollide(self,ship.bullets,dokill=True)
@@ -394,17 +400,28 @@ class Spaceship(pygame.sprite.Sprite):
                         self.die(explosions)
                         return True
     
+        ships_collided  = pygame.sprite.spritecollide(self,enemy_ships,dokill=True,collided=pygame.sprite.collide_mask)
+        
+        for ship in ships_collided:
+            explosions.add(Explosion(*ship.rect.midbottom,3))
+
+
+
+
+        self.health -= len(ships_collided) * self.ship_collision_loss
+
         item_collisions = pygame.sprite.spritecollide(self,items,dokill=True,collided=pygame.sprite.collide_mask)
         
+        if self.health <= 0:
+            self.die(explosions)
+            return True
+
         if item_collisions:
             self.power_up_sound.play()
             for item in item_collisions:
                 item.powerup(self)
         
 
-        if self.health <= 0:
-            self.die(explosions)
-            return True
 
         
         
