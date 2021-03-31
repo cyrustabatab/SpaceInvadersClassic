@@ -376,10 +376,11 @@ class Spaceship(pygame.sprite.Sprite):
         
         for ship in enemy_ships:
             bullets = pygame.sprite.spritecollide(self,ship.bullets,dokill=True)
-            self.health -= 10 * len(bullets)
-            if self.health <= 0:
-                self.die(explosions)
-                return True
+            for bullet in bullets:
+                self.health -= bullet.damage 
+                if self.health <= 0:
+                    self.die(explosions)
+                    return True
 
         
         if not self.protected_bubble:

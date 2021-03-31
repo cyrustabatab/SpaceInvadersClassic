@@ -13,21 +13,15 @@ def get_images(directory,size=60):
         image = pygame.transform.scale(pygame.image.load(os.path.join(directory,file_)).convert_alpha(),(size,size))
         images.append(image)
 
-
     return images
-
-
-
 
 
 
 class EnemySpaceShips:
 
-
     def __init__(self):
         self.ships = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
-
 
     def add_ship(self,ship):    
         self.ships.add(ship)
@@ -64,13 +58,14 @@ class EnemySpaceShip(pygame.sprite.Sprite):
         image = pygame.image.load(os.path.join('assets','enemy_ship_bullet.png')).convert_alpha()
 
 
-        def __init__(self,x,y,screen_height,speed,size=40):
+        def __init__(self,x,y,screen_height,speed,size=40,damage=10):
             super().__init__()
             
             self.image = pygame.transform.scale(self.image,(size,size))
             self.screen_height = screen_height
             self.rect = self.image.get_rect(center=(x,y))
             self.vel  = vec(0,speed)
+            self.damage = damage
     
 
         def update(self):
@@ -144,9 +139,48 @@ class EnemySpaceShip(pygame.sprite.Sprite):
 
 
 
+def get_rocket_images():
+
+    directory = os.path.join('assets','rocket_ship')
+    images = []
+    for file_ in os.listdir(directory):
+        image = pygame.image.load(os.path.join(directory,file_)).convert_alpha()
+        image = pygame.transform.rotate(image,-90)
+        images.append(image)
+
+
+    return images
+
+
 
 class RocketShip(EnemySpaceShip):
-    pass
+
+    
+    images = get_rocket_images()
+    def __init__(self,screen_width,screen_height,speed=5,health=100):
+        super().__init__(screen_width,screen_height,speed,health)
+        self.image_index = 0 
+        self.image = self.images[0]
+        self.frame_count = 0
+
+
+        self.switch_frame = 10
+
+
+
+
+    def update(self):
+        super().update()
+
+        self.frame_count += 1
+
+        if self.frame_count == self.switch_frame:
+            self.image_index = (self.image_index + 1) % len(self.images)
+            self.image = self.images[self.image_index]
+            self.frame_count = 0
+
+
+
 
 
 

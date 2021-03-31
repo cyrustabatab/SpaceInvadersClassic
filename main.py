@@ -21,7 +21,7 @@ from bomb import BombPowerUp
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
-from enemy_spaceship import EnemySpaceShip,EnemySpaceShips
+from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip
 
 
 from moon import Moon
@@ -157,15 +157,8 @@ def game():
     seconds = 3
     seconds_text = font.render(texts[len(texts) - seconds],True,WHITE)
     second_text_rect =seconds_text.get_rect(center=(WIDTH//2,HEIGHT//2 + gap_from_center))
-    
-    
+
     game_over_music = pygame.mixer.Sound(os.path.join('assets','Retro_No hope.ogg'))
-
-
-
-    
-
-    
 
     def display(wave):
         
@@ -224,7 +217,9 @@ def game():
     second_top_gap = 10
     time_text_rect = time_text.get_rect(center=(WIDTH//2,second_top_gap + time_text.get_height()//2))
     enemy_ships = pygame.sprite.Group()
+    enemy_ship_types = [RocketShip,EnemySpaceShip]
     while True:
+
         
 
         current_time = time.time()
@@ -275,7 +270,8 @@ def game():
                         item = class_(WIDTH,HEIGHT)
                         items.add(item)
                 elif event.type == ENEMY_SHIP_EVENT:
-                    enemy = EnemySpaceShip(WIDTH,HEIGHT)
+                    ship_class= enemy_ship_types[0]#random.choice(enemy_ship_types)
+                    enemy = ship_class(WIDTH,HEIGHT)
                     enemy_ships.add(enemy)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                     if player_ship.sprite.has_torpedo:
