@@ -40,7 +40,7 @@ class Coin(Item):
     def image_path(self):
         return os.path.join('assets','gold_coin_animation',"gold_coin_round_blank_1.png")
 
-
+    
     def update(self):
         super().update()
 

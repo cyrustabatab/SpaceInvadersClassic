@@ -7,12 +7,17 @@ from item import Item
 class Cross(Item):
 
 
-    
+    name = 'cross'    
 
     @property
     def image_path(self):
         return os.path.join('assets','cross.png') 
     
+
+    @property
+    def time_last(self):
+        return 0
+
 
     @property
     def text(self):

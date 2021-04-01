@@ -26,6 +26,11 @@ class EnemySpaceShips:
     def add_ship(self,ship):    
         self.ships.add(ship)
 
+    
+    def reset(self):
+
+        self.ships.empty()
+        self.bullets.empty()
 
     def add_bullet(self,bullet):
         self.bullets.add(bullet)
@@ -33,9 +38,10 @@ class EnemySpaceShips:
 
     def draw(self,screen):
 
-
-        self.ships.draw(screen)
-        self.bullets.draw(screen)
+        
+        for ship in self.ships:
+            ship.draw(screen)
+        #self.bullets.draw(screen)
     
     def update(self):
 

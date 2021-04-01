@@ -17,7 +17,6 @@ class Item(pygame.sprite.Sprite,ABC):
         super().__init__()
         
 
-
         self.image = pygame.image.load(self.image_path).convert_alpha()
         if size <= 0:
             size = self.image.get_width()
@@ -42,9 +41,17 @@ class Item(pygame.sprite.Sprite,ABC):
         self.vel = vec(0,speed)
     
 
+    def getImage(self):
+        return self.image
+
     @property
     def text(self):
         return None
+    
+
+    @property
+    def time_last(self):
+        return -1
     
     def change_rects_topleft(self,x,y):
         self.rect.topleft = x,y
@@ -64,7 +71,9 @@ class Item(pygame.sprite.Sprite,ABC):
         if self.rect.top > self.screen_height:
             self.kill()
     
-    
+    @abstractproperty
+    def name(self): 
+        return None
 
 
     def is_hovered_on(self,point):

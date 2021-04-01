@@ -63,12 +63,14 @@ class Spaceship(pygame.sprite.Sprite):
         self.is_frozen = False
         self.poisoned = False
         self.can_turn = True
+        self.increased_damage = False
 
         self.angle = 0
         self.rotation_speed = 1.8#1.8
         self.direction = 0
         self.items = []
         self.damage = 10
+        self.powerups = {}
         
 
         
@@ -96,10 +98,12 @@ class Spaceship(pygame.sprite.Sprite):
         time_elapsed = released_up - self.pressed_down_start
         target_y = self.screen_height - time_elapsed * 200 # 100 pixels for every second held
         self.has_bomb = False
+        del self.powerups[Bomb.name]
         self.pressed_down_start = None
 
 
         self.bomb.sprite = Bomb(self.rect.centerx,self.screen_height,target_y)
+
 
     
 
@@ -176,6 +180,7 @@ class Spaceship(pygame.sprite.Sprite):
             torpedo = Torpedo(self.rect.centerx,self.rect.y)
             self.torpedo.sprite = torpedo
             self.has_torpedo = False
+            #del self.powerups[torpedo.image]
 
 
     def make_invincible(self):
@@ -218,12 +223,20 @@ class Spaceship(pygame.sprite.Sprite):
 
         if self.bomb:
             self.bomb.draw(screen)
+        
+        
+        width = 50
+        for i,powerup in enumerate(self.powerups.values()):
+            powerup_image,_,_ = powerup
+            screen.blit(powerup_image,(5 + (width * i),self.screen_height - powerup_image.get_height() - 5))
+
+
 
         if self.has_torpedo:
             screen.blit(Torpedo.image,(5,self.screen_height - Torpedo.image.get_height() - 5))
-
+        
         if self.has_bomb:
-            screen.blit(Bomb.image,(5,self.screen_height - Bomb.image.get_height() - 5))
+            #screen.blit(Bomb.image,(5,self.screen_height - Bomb.image.get_height() - 5))
             if not self.pressed_down_start:
                 pygame.draw.rect(screen,WHITE,(self.rect.x,self.rect.y -5,self.rect.width,5))
 
@@ -248,6 +261,16 @@ class Spaceship(pygame.sprite.Sprite):
         screen.blit(self.health_surface,self.health_surface_rect)
 
     
+    def increase_bullet_damage(self,seconds=10):
+        
+        if not self.increased_damage:
+            self.damage *= 2
+            self.increased_damage = True
+            self.increased_seconds = seconds
+        self.increased_damage_start_time = time.time()
+
+
+
 
     def fire_bullet(self):
         
@@ -269,8 +292,19 @@ class Spaceship(pygame.sprite.Sprite):
     
     def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses,items,enemy_ships):
         
+        
+
 
         current_time = time.time()
+
+        for key,value in list(self.powerups.items()):
+            _,time_started,time_last = value 
+            if time_last != -1:
+                if current_time - time_started >= time_last:
+                    del self.powerups[key]
+
+
+
         if self.protected_bubble:
             if current_time - self.protected_start >= self.protection_timer:
                 self.protected = False
@@ -278,7 +312,11 @@ class Spaceship(pygame.sprite.Sprite):
         if self.cooldown:
             if current_time - self.bullet_fire_start_time >= self.cooldown_time:
                 self.cooldown = False
-
+        
+        if self.increased_damage:
+            if current_time - self.increased_damage_start_time >= self.increased_seconds:
+                self.increased_damage = False
+                self.damage /= 2
         
         if self.speedy:
             if current_time - self.speed_start_time >= self.speed_time:
@@ -420,7 +458,19 @@ class Spaceship(pygame.sprite.Sprite):
         if item_collisions:
             self.power_up_sound.play()
             for item in item_collisions:
-                item.powerup(self)
+                name = item.name
+                image = item.getImage()
+                start_time = time.time()
+                if item.time_last != 0:
+                    if name not in self.powerups:
+                        self.powerups[name] = [image,start_time,item.time_last]
+                        item.powerup(self)
+                    elif self.powerups[name][1] != -1:
+                        self.powerups[name][1] = start_time
+                else:
+                    item.powerup(self)
+
+
         
 
 

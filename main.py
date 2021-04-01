@@ -22,6 +22,7 @@ from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
 from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip
+from strength import Strength
 
 
 from moon import Moon
@@ -84,8 +85,10 @@ def game():
         wave_text = wave_font.render(f"WAVE: {wave}",True,WHITE)
         player_ship = pygame.sprite.GroupSingle(Spaceship(WIDTH,HEIGHT))
         aliens = Aliens(WIDTH)
-        for sprite in items:
-            sprite.kill()
+        enemy_ships.empty()
+        items.empty()
+        #for sprite in items:
+            #sprite.kill()
         started = False
         game_over = False
         #seconds =3
@@ -110,7 +113,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement,Coin,BombPowerUp]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement,Coin,BombPowerUp,Strength]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -200,8 +203,8 @@ def game():
     second_font = pygame.font.SysFont(os.path.join('assets','atari.ttf'),30)
 
     HEART_EVENT = pygame.USEREVENT + 2
-    milliseconds = 10000
-    pygame.time.set_timer(HEART_EVENT,10000)
+    milliseconds =2000 #10000
+    pygame.time.set_timer(HEART_EVENT,2000)
     ENEMY_SHIP_EVENT = pygame.USEREVENT + 5
     pygame.time.set_timer(ENEMY_SHIP_EVENT,15000)
 
@@ -265,12 +268,12 @@ def game():
                         item = Cross(WIDTH,HEIGHT)
                         items.add(item)
                     else:
-                        number = random.randint(len(item_types) - 1,len(item_types) -1)
+                        number = random.randint(len(item_types) - 2,len(item_types) -1)
                         class_ =item_types[number] 
                         item = class_(WIDTH,HEIGHT)
                         items.add(item)
                 elif event.type == ENEMY_SHIP_EVENT:
-                    ship_class= enemy_ship_types[0]#random.choice(enemy_ship_types)
+                    ship_class= random.choice(enemy_ship_types)
                     enemy = ship_class(WIDTH,HEIGHT)
                     enemy_ships.add(enemy)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
@@ -295,6 +298,7 @@ def game():
             #hearts.update()
             pressed_keys = pygame.key.get_pressed()
             aliens.update()
+            ships.update()
             enemy_ships.update()
             game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items,enemy_ships) 
             if game_over:

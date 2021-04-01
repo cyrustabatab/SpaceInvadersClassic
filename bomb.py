@@ -14,6 +14,7 @@ class Bomb(pygame.sprite.Sprite):
 
     image = pygame.transform.scale(pygame.image.load(os.path.join('assets','bomb.png')).convert_alpha(),(40,40))
     tick_sound = pygame.mixer.Sound(os.path.join('assets','ticking.wav'))
+    name = 'bomb'
 
     def __init__(self,x,y,target_y,speed=5,detonation_time=3,distance=100):
         '''x and y represent the center of the bomb'''
@@ -83,7 +84,7 @@ class Bomb(pygame.sprite.Sprite):
 class BombPowerUp(Item):
 
     
-
+    name = 'bomb'
     @property
     def text(self):
         text = "WEAPON THAT KILLS ENEMIES IN VICINITY WHEN DETONATED. HOLD DOWN ENTER AND RELEASE TO FLING BOMB. THE DISTANCE THE BOMB TRAVELS WILL DEPEND HOW LONG YOU HELD THE ENTER KEY."
@@ -91,6 +92,8 @@ class BombPowerUp(Item):
 
         WHITE = (255,255,255)
         return text_wrap(text,28,self.font)
+    
+
 
     @property
     def image_path(self):
