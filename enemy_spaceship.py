@@ -64,13 +64,15 @@ class EnemySpaceShip(pygame.sprite.Sprite):
         image = pygame.image.load(os.path.join('assets','enemy_ship_bullet.png')).convert_alpha()
 
 
-        def __init__(self,x,y,screen_height,speed,size=40,damage=10):
+        def __init__(self,x,y,screen_height,speed,size=20,damage=10):
             super().__init__()
             
+            #self.image = pygame.transform.scale(self.image,(size,size))
             self.image = pygame.transform.scale(self.image,(size,size))
             self.screen_height = screen_height
             self.rect = self.image.get_rect(center=(x,y))
-            self.vel  = vec(0,speed)
+            self.mask = pygame.mask.from_surface(self.image)
+            self.vel  = vec(0,speed)#vec(0,speed)
             self.damage = damage
     
 
@@ -141,7 +143,8 @@ class EnemySpaceShip(pygame.sprite.Sprite):
         self.bullets.update()
 
         if self.rect.top >= self.screen_height:
-            self.kill()
+            pass
+            #self.kill()
 
 
 

@@ -29,7 +29,7 @@ class Spaceship(pygame.sprite.Sprite):
         
         
         self.original_image = self.image.copy() 
-        self.mask = pygame.mask.from_surface(self.image)
+        #self.mask = pygame.mask.from_surface(self.image)
         self.screen_width = screen_width
         self.screen_height = screen_height
         
@@ -459,7 +459,7 @@ class Spaceship(pygame.sprite.Sprite):
                     return True
     
             for ship in enemy_ships:
-                bullets = pygame.sprite.spritecollide(self,ship.bullets,dokill=True)
+                bullets = pygame.sprite.spritecollide(self,ship.bullets,dokill=True,collided=pygame.sprite.collide_mask)
                 for bullet in bullets:
                     if self.hits_allowed:
                         self.hits_allowed  -= 1

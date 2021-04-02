@@ -274,7 +274,7 @@ def game():
                         items.add(item)
                 elif event.type == ENEMY_SHIP_EVENT:
                     ship_class= random.choice(enemy_ship_types)
-                    enemy = ship_class(WIDTH,HEIGHT)
+                    enemy = RocketShip(WIDTH,HEIGHT)
                     enemy_ships.add(enemy)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                     if player_ship.sprite.has_torpedo:
