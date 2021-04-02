@@ -7,13 +7,16 @@ vec = pygame.math.Vector2
 class Heart(Item):
 
 
-
-
+    name = 'heart'
+    
     @property
     def image_path(self):
         return os.path.join('assets','heart.png')
     
     
+    @property
+    def time_last(self):
+        return 0
 
     @property
     def text(self):

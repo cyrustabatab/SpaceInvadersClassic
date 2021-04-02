@@ -4,7 +4,7 @@ import os
 
 class Star(Item):
     
-
+    name = 'star'
 
     
     @property
@@ -20,13 +20,17 @@ class Star(Item):
         return self.font.render(text,True,WHITE)
 
 
-
+    @property
+    def time_last(self):
+        return 10
 
     def powerup(self,player):
-        player.double_speed()
+        player.double_speed(self.time_last)
 
 
-
+    @staticmethod
+    def disable(player):
+        player.restore_normal_speed()
 
 
 

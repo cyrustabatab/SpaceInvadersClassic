@@ -28,6 +28,8 @@ class Strength(Item):
 
         player.increase_bullet_damage()
 
-    
+    @staticmethod
+    def disable(player):    
+        player.decrease_bullet_damage()
 
 

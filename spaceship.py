@@ -56,7 +56,6 @@ class Spaceship(pygame.sprite.Sprite):
         self.hits_allowed = 0
         self.protection_timer = 5
         self.speedy = False
-        self.speed_time = 5
         self.torpedo = pygame.sprite.GroupSingle()
         self.bomb = pygame.sprite.GroupSingle()
         self.has_torpedo = False
@@ -100,13 +99,14 @@ class Spaceship(pygame.sprite.Sprite):
         self.has_bomb = False
         del self.powerups[Bomb.name]
         self.pressed_down_start = None
-
-
         self.bomb.sprite = Bomb(self.rect.centerx,self.screen_height,target_y)
 
 
     
 
+    
+    def restore_normal_speed(self):
+        self.vel /= 2
 
 
     def increment_coins(self):
@@ -158,7 +158,16 @@ class Spaceship(pygame.sprite.Sprite):
         self.frozen_start = time.time()
 
         self.is_frozen = True
+    
 
+    def unfreeze(self):
+        self.is_frozen = False
+
+    def unprotect(self):
+        self.protected_bubble = False
+
+    def unpoison(self):
+        self.poisoned = False
 
 
     
@@ -178,6 +187,7 @@ class Spaceship(pygame.sprite.Sprite):
 
         if not self.torpedo.sprite:
             torpedo = Torpedo(self.rect.centerx,self.rect.y)
+            del self.powerups[Torpedo.name]
             self.torpedo.sprite = torpedo
             self.has_torpedo = False
             #del self.powerups[torpedo.image]
@@ -187,14 +197,17 @@ class Spaceship(pygame.sprite.Sprite):
         self.protected_bubble = True
         self.protected_start = time.time()
 
-    def double_speed(self):
+    def double_speed(self,t):
+        self.speed_time = t
         if not self.speedy:
             self.vel *= 2
             self.speedy = True
+
         self.speed_start_time = time.time()
 
     
     def die(self,explosions):
+        print("DIE method")
         self.kill()
         size = 3
         explosions.add(Explosion(*self.rect.center,3))
@@ -227,7 +240,7 @@ class Spaceship(pygame.sprite.Sprite):
         
         width = 50
         for i,powerup in enumerate(self.powerups.values()):
-            powerup_image,_,_ = powerup
+            powerup_image,_,_,_ = powerup
             screen.blit(powerup_image,(5 + (width * i),self.screen_height - powerup_image.get_height() - 5))
 
 
@@ -269,7 +282,9 @@ class Spaceship(pygame.sprite.Sprite):
             self.increased_seconds = seconds
         self.increased_damage_start_time = time.time()
 
-
+    def decrease_bullet_damage(self):
+        self.increased_damage = False
+        self.damage /= 2
 
 
     def fire_bullet(self):
@@ -298,36 +313,45 @@ class Spaceship(pygame.sprite.Sprite):
         current_time = time.time()
 
         for key,value in list(self.powerups.items()):
-            _,time_started,time_last = value 
+            _,item_type,time_last,start_time = value 
             if time_last != -1:
-                if current_time - time_started >= time_last:
-                    del self.powerups[key]
+                if current_time - start_time >= 1:
+                    time_last -= 1
+                    if time_last == 0:
+                        item_type.disable(self)
+                        del self.powerups[key]
+                    else:
+                        value[-1] = current_time
+                        value[2] = time_last
 
 
-
+        '''
         if self.protected_bubble:
             if current_time - self.protected_start >= self.protection_timer:
                 self.protected = False
+        '''
 
         if self.cooldown:
             if current_time - self.bullet_fire_start_time >= self.cooldown_time:
                 self.cooldown = False
-        
+        ''' 
         if self.increased_damage:
             if current_time - self.increased_damage_start_time >= self.increased_seconds:
                 self.increased_damage = False
                 self.damage /= 2
-        
+        '''
+        '''        
         if self.speedy:
             if current_time - self.speed_start_time >= self.speed_time:
                 self.vel /= 2
                 self.speedy = False
+        '''
         
-
+        '''
         if self.is_frozen:
             if current_time - self.frozen_start >= self.frozen_timer:
                 self.is_frozen = False
-        
+        ''' 
         if self.poisoned:
 
             if current_time - self.poisoned_start_time >= self.poison_time:
@@ -412,13 +436,6 @@ class Spaceship(pygame.sprite.Sprite):
 
         
         
-        for ship in enemy_ships:
-            bullets = pygame.sprite.spritecollide(self,ship.bullets,dokill=True)
-            for bullet in bullets:
-                self.health -= bullet.damage 
-                if self.health <= 0:
-                    self.die(explosions)
-                    return True
 
         
         if not self.protected_bubble:
@@ -432,28 +449,44 @@ class Spaceship(pygame.sprite.Sprite):
                     self.hits_allowed_text = self.font.render(str(self.hits_allowed),True,WHITE)
                     if self.hits_allowed <= 0:
                         self.protected = False
+                        del self.powerups['safety']
                         self.health -= abs(self.hits_allowed) * 10
                 else:
                     self.health -= 10 * len(collisions)
+                if self.health <= 0:
+                    print('here1')
+                    self.die(explosions)
+                    return True
+    
+            for ship in enemy_ships:
+                bullets = pygame.sprite.spritecollide(self,ship.bullets,dokill=True)
+                for bullet in bullets:
+                    if self.hits_allowed:
+                        self.hits_allowed  -= 1
+                        self.hits_allowed_text = self.font.render(str(self.hits_allowed),True,WHITE)
+                        if self.hits_allowed == 0:
+                            self.protected = False
+                            del self.powerups['safety']
+                    else:
+                        print(self.health, bullet.damage)
+                        self.health -= bullet.damage 
+                        if self.health <= 0:
+                            self.die(explosions)
+                            return True
+
+            ships_collided  = pygame.sprite.spritecollide(self,enemy_ships,dokill=True,collided=pygame.sprite.collide_mask)
+            if ships_collided: 
+                if self.hits_allowed:
+                    self.protected= False
+                else:
+                    for ship in ships_collided:
+                        explosions.add(Explosion(*ship.rect.midbottom,3))
+                    self.health -= len(ships_collided) * self.ship_collision_loss
                     if self.health <= 0:
                         self.die(explosions)
                         return True
-    
-        ships_collided  = pygame.sprite.spritecollide(self,enemy_ships,dokill=True,collided=pygame.sprite.collide_mask)
-        
-        for ship in ships_collided:
-            explosions.add(Explosion(*ship.rect.midbottom,3))
-
-
-
-
-        self.health -= len(ships_collided) * self.ship_collision_loss
 
         item_collisions = pygame.sprite.spritecollide(self,items,dokill=True,collided=pygame.sprite.collide_mask)
-        
-        if self.health <= 0:
-            self.die(explosions)
-            return True
 
         if item_collisions:
             self.power_up_sound.play()
@@ -463,10 +496,10 @@ class Spaceship(pygame.sprite.Sprite):
                 start_time = time.time()
                 if item.time_last != 0:
                     if name not in self.powerups:
-                        self.powerups[name] = [image,start_time,item.time_last]
+                        self.powerups[name] = [image,type(item),item.time_last,start_time]
                         item.powerup(self)
-                    elif self.powerups[name][1] != -1:
-                        self.powerups[name][1] = start_time
+                    elif self.powerups[name][2] != -1:
+                        self.powerups[name][2] += item.time_last
                 else:
                     item.powerup(self)
 

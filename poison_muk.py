@@ -6,14 +6,18 @@ from text_utility import text_wrap
 
 class PoisonMuk(Item):
 
-    
+    name = "poison"    
 
     @property
     def text(self):
         text = "CAUSES YOU TO LOSE 2 HP A SECOND FOR 5 SECONDS"
         width = 28
         return text_wrap(text,width,self.font)
+    
 
+    @property
+    def time_last(self):
+        return 5
 
     @property
     def image_path(self):
@@ -22,4 +26,8 @@ class PoisonMuk(Item):
 
     def powerup(self,player):
         player.poison()
+    
 
+    @staticmethod
+    def disable(player):
+        player.unpoison()

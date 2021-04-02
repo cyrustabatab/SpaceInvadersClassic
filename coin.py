@@ -27,6 +27,8 @@ def get_coin_images(size):
 
 class Coin(Item):
     
+    name = "coin"
+
     def __init__(self,screen_width,screen_height,size=40,speed=2):
         self.coin_images = get_coin_images(size)
         super().__init__(screen_width,screen_height,-1,speed)
@@ -35,6 +37,10 @@ class Coin(Item):
         self.frame_count = 0
         self.frame_limit = 4
     
+
+    @property
+    def time_last(self):
+        return 0
 
     @property
     def image_path(self):

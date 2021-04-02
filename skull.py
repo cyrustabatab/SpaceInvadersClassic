@@ -6,13 +6,19 @@ import os
 class Skull(Item):
     
 
-    
+    name = 'skull'    
 
     @property
     def text(self):
         text = "Instant Death"
         WHITE = (255,255,255)
         return self.font.render(text,True,WHITE)
+    
+
+    @property
+    def time_last(self):
+        return 0
+
     @property
     def image_path(self):
         return os.path.join('assets','skull.png')

@@ -18,7 +18,6 @@ class Torpedo(pygame.sprite.Sprite):
     
 
 
-
     def update(self):
         self.rect.center += self.vel
         
@@ -31,7 +30,8 @@ class Torpedo(pygame.sprite.Sprite):
 
 class TorpedoPowerUp(Item):
 
-    
+    name = 'torpedo'    
+
     @property
     def image_path(self):
         return os.path.join('assets','torpedoTed.png')
@@ -47,6 +47,7 @@ class TorpedoPowerUp(Item):
             text = self.font.render(phrase,True,WHITE)
             texts.append(text)
         return texts
+    
 
     def powerup(self,player):
         player.add_torpedo()

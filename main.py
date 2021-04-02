@@ -113,7 +113,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement,Coin,BombPowerUp,Strength]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,Coin,BombPowerUp,Strength]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -268,9 +268,9 @@ def game():
                         item = Cross(WIDTH,HEIGHT)
                         items.add(item)
                     else:
-                        number = random.randint(len(item_types) - 2,len(item_types) -1)
+                        number = random.randint(0,len(item_types) -1)
                         class_ =item_types[number] 
-                        item = class_(WIDTH,HEIGHT)
+                        item = Safety(WIDTH,HEIGHT)
                         items.add(item)
                 elif event.type == ENEMY_SHIP_EVENT:
                     ship_class= random.choice(enemy_ship_types)
@@ -286,6 +286,7 @@ def game():
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 start_sound.stop()
+                game_over_music.stop()
                 return
 
 
@@ -335,11 +336,11 @@ def game():
         if player_ship:
             player_ship.sprite.draw(screen)
             draw_coins_collected_topleft()
+            player_ship.sprite.draw_health_bar_and_bullets(screen)
         explosions.draw(screen)
         screen.blit(wave_text,wave_text_rect)
         screen.blit(time_text,time_text_rect)
-        if  not game_over:
-            player_ship.sprite.draw_health_bar_and_bullets(screen)
+
 
         if not started:
             screen.blit(seconds_text,second_text_rect)
