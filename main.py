@@ -113,7 +113,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,Coin,BombPowerUp,Strength]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,BombPowerUp,Strength]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -208,6 +208,10 @@ def game():
     ENEMY_SHIP_EVENT = pygame.USEREVENT + 5
     pygame.time.set_timer(ENEMY_SHIP_EVENT,15000)
 
+    COIN_EVENT = pygame.USEREVENT + 10
+    milliseconds = 5000
+    pygame.time.set_timer(COIN_EVENT,milliseconds)
+
 
 
     display(wave)
@@ -262,7 +266,7 @@ def game():
                 elif menu_surface_rect.collidepoint(point):
                     game_over_music.stop()
                     return
-            if started and not game_over:
+            elif started and not game_over:
                 if event.type == HEART_EVENT:
                     if random.randint(1,25) == 1:
                         item = Cross(WIDTH,HEIGHT)
@@ -270,20 +274,26 @@ def game():
                     else:
                         number = random.randint(0,len(item_types) -1)
                         class_ =item_types[number] 
-                        item = Safety(WIDTH,HEIGHT)
+                        item = PoisonMuk(WIDTH,HEIGHT)
                         items.add(item)
                 elif event.type == ENEMY_SHIP_EVENT:
                     ship_class= random.choice(enemy_ship_types)
                     enemy = RocketShip(WIDTH,HEIGHT)
                     enemy_ships.add(enemy)
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                    if player_ship.sprite.has_torpedo:
-                        player_ship.sprite.fire_torpedo()
-                    elif player_ship.sprite.has_bomb:
-                        player_ship.sprite.fire_bomb()
+                elif event.type == COIN_EVENT:
+                    coin = Coin(WIDTH,HEIGHT)
+                    items.add(coin)
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        if player_ship.sprite.has_torpedo:
+                            player_ship.sprite.fire_torpedo()
+                        elif player_ship.sprite.has_bomb:
+                            player_ship.sprite.fire_bomb()
+                    elif player_ship.sprite.poisoned and player_ship.sprite.coins_collected >= 5 and event.key == pygame.K_j:
+                        player_ship.sprite.unpoison()
+                        player_ship.sprite.removeCoins(5)
                 elif event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
                     player_ship.sprite.release_bomb()
-
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 start_sound.stop()
                 game_over_music.stop()
@@ -477,7 +487,7 @@ def power_up_screen():
 
         
         
-        item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement]
+        item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement,Strength]
         
         item_type_index = 0
 

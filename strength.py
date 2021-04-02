@@ -1,5 +1,6 @@
 from item import Item
 import os
+from text_utility import text_wrap
 
 
 
@@ -11,8 +12,9 @@ class Strength(Item):
     @property
     def text(self):
         text = "DOUBLE YOUR DAMAGE FOR 10 SECONDS"
+        width = 28
         WHITE = (255,255,255)
-        return self.font.render(text,True,WHITE)
+        return text_wrap(text,width,self.font)
 
     
     @property

@@ -6,6 +6,7 @@ import time
 from star import Star
 from copy import copy
 from bomb import Bomb
+from text_utility import text_wrap
 
 vec = pygame.math.Vector2
 
@@ -23,6 +24,8 @@ class Spaceship(pygame.sprite.Sprite):
     power_up_sound = pygame.mixer.Sound(os.path.join('assets','Powerup.wav'))
     laser_sound.set_volume(0.3)
     font = pygame.font.Font(os.path.join('assets','atari.ttf'),20)
+    poisoned_sound = pygame.mixer.Sound(os.path.join('assets','Poisoned.wav'))
+    poisoned_sound.set_volume(0.3)
 
     def __init__(self,screen_width,screen_height,xspeed=5,health=100,cooldown_time=0.5):
         super().__init__()
@@ -44,7 +47,8 @@ class Spaceship(pygame.sprite.Sprite):
         self.vel = vec(xspeed,0)
         self.original_vel = vec(0,-1)
         self.cooldown_time = cooldown_time
-
+        
+        self.poison_texts = None
         self.rect = self.image.get_rect(topleft=(self.original_pos))
         self.cooldown = False
         self.transparent_surface = pygame.Surface((self.rect.width + 10,self.rect.height + 10),pygame.SRCALPHA)
@@ -135,15 +139,19 @@ class Spaceship(pygame.sprite.Sprite):
             self.original_vel.rotate_ip(self.rotation_speed)
         elif self.direction == -1:
             self.original_vel.rotate_ip(-self.rotation_speed)
-    
+
     def poison(self,seconds=5):
-        self.poison_time = seconds
 
-        self.poisoned = True
-        self.poisoned_start_time = time.time()
-        self.last_poison_time = self.poisoned_start_time
+        if not self.poisoned:
+            self.poisoned_sound.play(-1)
+            self.poison_time = seconds
+            self.count = 0
+            text = "HIT J TO USE 5 COINS TO UNPOISON"
+            width = 28
+            self.poison_texts = text_wrap(text,width,self.font)
 
-
+            self.poisoned = True
+            self.last_poison_time = time.time()
 
     def add_five_hit_protection(self):
         self.protected = True
@@ -165,9 +173,14 @@ class Spaceship(pygame.sprite.Sprite):
 
     def unprotect(self):
         self.protected_bubble = False
+    
+    def removeCoins(self,coins):
+        self.coins_collected -= coins
 
     def unpoison(self):
         self.poisoned = False
+        self.poisoned_sound.stop()
+        del self.powerups['poison']
 
 
     
@@ -209,6 +222,7 @@ class Spaceship(pygame.sprite.Sprite):
     def die(self,explosions):
         print("DIE method")
         self.kill()
+        self.poisoned_sound.stop()
         size = 3
         explosions.add(Explosion(*self.rect.center,3))
 
@@ -220,6 +234,10 @@ class Spaceship(pygame.sprite.Sprite):
 
     def draw(self,screen):
 
+        width = 50
+        for i,powerup in enumerate(self.powerups.values()):
+            powerup_image,_,_,_ = powerup
+            screen.blit(powerup_image,(5 + (width * i),self.screen_height - powerup_image.get_height() - 5))
         screen.blit(self.image,self.rect)
         if self.protected:
             screen.blit(self.transparent_surface,self.transparent_rect)
@@ -238,10 +256,10 @@ class Spaceship(pygame.sprite.Sprite):
             self.bomb.draw(screen)
         
         
-        width = 50
-        for i,powerup in enumerate(self.powerups.values()):
-            powerup_image,_,_,_ = powerup
-            screen.blit(powerup_image,(5 + (width * i),self.screen_height - powerup_image.get_height() - 5))
+        if self.poison_texts:
+
+            for i,poison_text in enumerate(self.poison_texts):
+                screen.blit(poison_text,(self.screen_width//2 - poison_text.get_width()//2,self.screen_height//2 + i * (poison_text.get_height() + width)))
 
 
 
@@ -352,13 +370,17 @@ class Spaceship(pygame.sprite.Sprite):
             if current_time - self.frozen_start >= self.frozen_timer:
                 self.is_frozen = False
         ''' 
-        if self.poisoned:
 
-            if current_time - self.poisoned_start_time >= self.poison_time:
-                self.poisoned = False
-            elif current_time - self.last_poison_time >= 1:
+        if self.poisoned:
+            if current_time - self.last_poison_time >= 1:
+                self.count += 1
+                if self.count == 2:
+                    self.poison_texts = None
                 self.last_poison_time = current_time
                 self.health -= 2
+                if self.health <= 0:
+                    self.die(explosions)
+                    return True
     
         if self.can_turn:
             self.set_rotation()
