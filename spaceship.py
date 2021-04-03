@@ -523,7 +523,9 @@ class Spaceship(pygame.sprite.Sprite):
                     elif self.powerups[name][2] != -1:
                         self.powerups[name][2] += item.time_last
                 else:
-                    item.powerup(self)
+                    result = item.powerup(self)
+                    if result == 'clear':
+                        bullets_group.empty()
 
 
         

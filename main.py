@@ -23,6 +23,7 @@ from poison_muk import PoisonMuk
 from free_movement import FreeMovement
 from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip
 from strength import Strength
+from red_button import RedButton
 
 
 from moon import Moon
@@ -113,7 +114,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,BombPowerUp,Strength]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,BombPowerUp,Strength,RedButton]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -272,9 +273,9 @@ def game():
                         item = Cross(WIDTH,HEIGHT)
                         items.add(item)
                     else:
-                        number = random.randint(0,len(item_types) -1)
+                        number = random.randint(len(item_types) - 1,len(item_types) -1)
                         class_ =item_types[number] 
-                        item = PoisonMuk(WIDTH,HEIGHT)
+                        item = class_(WIDTH,HEIGHT)
                         items.add(item)
                 elif event.type == ENEMY_SHIP_EVENT:
                     ship_class= random.choice(enemy_ship_types)
@@ -487,7 +488,7 @@ def power_up_screen():
 
         
         
-        item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement,Strength]
+        item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,FreeMovement,Strength,RedButton]
         
         item_type_index = 0
 

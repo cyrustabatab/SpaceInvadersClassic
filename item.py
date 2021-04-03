@@ -71,9 +71,6 @@ class Item(pygame.sprite.Sprite,ABC):
         if self.rect.top > self.screen_height:
             self.kill()
     
-    @abstractproperty
-    def name(self): 
-        return None
 
 
     def is_hovered_on(self,point):
