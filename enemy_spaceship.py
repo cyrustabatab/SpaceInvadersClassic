@@ -10,8 +10,12 @@ GREEN = (0,255,0)
 def get_images(directory,size=60):
     images= []
     for file_ in os.listdir(directory):
-        image = pygame.transform.scale(pygame.image.load(os.path.join(directory,file_)).convert_alpha(),(size,size))
+        image = pygame.image.load(os.path.join(directory,file_)).convert_alpha()
+        if size != -1:
+            image = pygame.transform.scale(image,(size,size))
+
         images.append(image)
+
 
     return images
 
@@ -94,6 +98,7 @@ class EnemySpaceShip(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x,y))
         self.vel = vec(0,speed)
         self.screen_height = screen_height
+        self.screen_width = screen_width
         self.full_health = health
         self.health = health
         self.start_time = time.time()
@@ -143,7 +148,7 @@ class EnemySpaceShip(pygame.sprite.Sprite):
         self.bullets.update()
 
         if self.rect.top >= self.screen_height:
-            pass
+            self.kill()
             #self.kill()
 
 
@@ -160,6 +165,11 @@ def get_rocket_images():
 
     return images
 
+
+
+
+
+        
 
 
 class RocketShip(EnemySpaceShip):
@@ -187,6 +197,59 @@ class RocketShip(EnemySpaceShip):
             self.image_index = (self.image_index + 1) % len(self.images)
             self.image = self.images[self.image_index]
             self.frame_count = 0
+
+
+
+class FlyingSaucer(RocketShip):
+
+    '''behavior of flying saucer is very similar to rocket ship except update method will be slightly differen in future'''
+
+
+    images = get_images(os.path.join('assets','flying_saucer'))
+
+    def __init__(self,screen_width,screen_height,speed=3,health=100):
+        super().__init__(screen_width,screen_height,speed,health)
+
+        self.x_speed = random.choice((-1,1)) * random.randint(3,5)
+        self.y_speed = random.randint(3,5)
+
+        self.vel = vec(self.x_speed,self.y_speed)
+        self.second_time = time.time()
+
+    def fire_bullet(self):
+        bullet = EnemySpaceShip.EnemyBullet(*self.rect.center,self.screen_height,abs(self.vel.y) * 2)
+        self.bullets.add(bullet)
+    
+    def update(self):
+        super().update()
+        if self.rect.right >= self.screen_width or self.rect.left <= 0:
+            self.vel.x *= -1
+        
+        if (self.rect.top < 0 and self.vel.y < 0) or (self.rect.bottom > self.screen_height):
+            self.vel.y *= -1
+
+        current_time = time.time()
+        
+
+        new_speed = lambda value: random.randint(3,5) * (-1 if value < 0 else 1)
+        if current_time - self.second_time  >= 1:
+            if random.randint(1,2) == 1:
+                self.vel.x *= -1
+                self.vel.x = new_speed(self.vel.x)
+                
+
+            if random.randint(1,2) == 1: 
+                self.vel.y *= -1
+                self.vel.y = new_speed(self.vel.y)
+
+            self.second_time = current_time
+
+
+
+
+
+
+
 
 
 

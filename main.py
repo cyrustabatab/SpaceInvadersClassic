@@ -21,7 +21,7 @@ from bomb import BombPowerUp
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
-from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip
+from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip,FlyingSaucer
 from strength import Strength
 from red_button import RedButton
 
@@ -279,7 +279,7 @@ def game():
                         items.add(item)
                 elif event.type == ENEMY_SHIP_EVENT:
                     ship_class= random.choice(enemy_ship_types)
-                    enemy = RocketShip(WIDTH,HEIGHT)
+                    enemy = FlyingSaucer(WIDTH,HEIGHT,speed=3)
                     enemy_ships.add(enemy)
                 elif event.type == COIN_EVENT:
                     coin = Coin(WIDTH,HEIGHT)
