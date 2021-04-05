@@ -21,6 +21,8 @@ from bomb import BombPowerUp
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
+from meteor import Meteor
+from asteroid import Asteroid
 from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip,FlyingSaucer
 from strength import Strength
 from red_button import RedButton
@@ -208,18 +210,21 @@ def game():
     pygame.time.set_timer(HEART_EVENT,2000)
     ENEMY_SHIP_EVENT = pygame.USEREVENT + 5
     pygame.time.set_timer(ENEMY_SHIP_EVENT,15000)
+    ENEMY_OBJECT_EVENT = pygame.USEREVENT + 7
+    pygame.time.set_timer(ENEMY_OBJECT_EVENT,7000)
 
     COIN_EVENT = pygame.USEREVENT + 10
     milliseconds = 5000
     pygame.time.set_timer(COIN_EVENT,milliseconds)
 
-
+    enemy_objects = pygame.sprite.Group()
 
     display(wave)
     start_time = time.time()
     start_sound.play()
     
     time_passed = 0
+    
 
     time_text = second_font.render(str(time_passed),True,WHITE)
     second_top_gap = 10
@@ -281,6 +286,11 @@ def game():
                     ship_class= random.choice(enemy_ship_types)
                     enemy = FlyingSaucer(WIDTH,HEIGHT,speed=3)
                     enemy_ships.add(enemy)
+                elif event.type == ENEMY_OBJECT_EVENT:
+                    meteor = Asteroid(WIDTH,HEIGHT)
+                    enemy_objects.add(meteor)
+
+
                 elif event.type == COIN_EVENT:
                     coin = Coin(WIDTH,HEIGHT)
                     items.add(coin)
@@ -311,6 +321,7 @@ def game():
             pressed_keys = pygame.key.get_pressed()
             aliens.update()
             ships.update()
+            enemy_objects.update()
             enemy_ships.update()
             game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items,enemy_ships) 
             if game_over:
@@ -339,8 +350,10 @@ def game():
 
 
         screen.blit(background_image,topleft)
+        enemy_objects.draw(screen)
         for enemy_ship in enemy_ships:
             enemy_ship.draw(screen)
+
         items.draw(screen)
         #hearts.draw(screen)
         aliens.draw(screen)
