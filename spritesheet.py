@@ -39,4 +39,7 @@ class Spritesheet:
 
 
 
+def load_images(path,rows,cols,width,height):
+    pass
+
 

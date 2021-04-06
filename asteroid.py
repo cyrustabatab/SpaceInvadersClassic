@@ -36,9 +36,8 @@ class Asteroid(Meteor):
 
     images = load_asteroid_images()
 
-    def __init__(self,screen_width,screen_height,speed=2,damage=20,size=40):
-        super().__init__(screen_width,screen_height,speed,damage,size)
-        self.frame_switch = 5
+    def __init__(self,screen_width,screen_height,speed=2,frame_switch=5,damage=20,size=40):
+        super().__init__(screen_width,screen_height,speed,frame_switch,damage,size)
 
 
 

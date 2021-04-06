@@ -21,6 +21,7 @@ from bomb import BombPowerUp
 from snowflake import Snowflake
 from poison_muk import PoisonMuk
 from free_movement import FreeMovement
+from fireball import Fireball
 from meteor import Meteor
 from asteroid import Asteroid
 from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip,FlyingSaucer
@@ -287,7 +288,7 @@ def game():
                     enemy = FlyingSaucer(WIDTH,HEIGHT,speed=3)
                     enemy_ships.add(enemy)
                 elif event.type == ENEMY_OBJECT_EVENT:
-                    meteor = Asteroid(WIDTH,HEIGHT)
+                    meteor = Fireball(WIDTH,HEIGHT)
                     enemy_objects.add(meteor)
 
 

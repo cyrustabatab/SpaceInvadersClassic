@@ -9,6 +9,10 @@ def resize(images,size):
         image = pygame.transform.scale(image,(size,size))
         images[i] = image
 
+
+
+
+
 class EnemyObject(pygame.sprite.Sprite):
     '''generic enemy class to represent enemy objects that spawn periodically(created sepearte class for spaceships since they behave much differnetly'''
 
