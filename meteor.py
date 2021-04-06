@@ -29,15 +29,14 @@ def get_meteor_images(size=100):
 class Meteor(EnemyObject):
 
     images = get_meteor_images()
-    def __init__(self,screen_width,screen_height,speed=4,frame_switch=10,damage=20,size=-1):
+    def __init__(self,screen_width,screen_height,speed=4,frame_switch=10,damage=20,size=-1,hits=4):
         self.image = self.images[0]
-        super().__init__(screen_width,screen_height,speed,damage)
+        super().__init__(screen_width,screen_height,speed,damage,hits)
         self.image_index = 0
 
         self.frame_count = 0
         self.frame_switch = frame_switch
         self.damage = damage
-
 
 
     def update(self):

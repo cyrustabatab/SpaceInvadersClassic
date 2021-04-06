@@ -288,7 +288,8 @@ def game():
                     enemy = FlyingSaucer(WIDTH,HEIGHT,speed=3)
                     enemy_ships.add(enemy)
                 elif event.type == ENEMY_OBJECT_EVENT:
-                    meteor = Fireball(WIDTH,HEIGHT)
+                    meteor = Asteroid(WIDTH,HEIGHT)
+                    #enemy_ships.add(meteor)
                     enemy_objects.add(meteor)
 
 
@@ -324,7 +325,7 @@ def game():
             ships.update()
             enemy_objects.update()
             enemy_ships.update()
-            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items,enemy_ships) 
+            game_over = player_ship.sprite.update(pressed_keys,aliens.get_group(),aliens.get_bullets(),explosions,hearts,potions,crosses,items,enemy_ships,enemy_objects) 
             if game_over:
                 pygame.mixer.music.stop()
                 game_over_music.play()
@@ -351,7 +352,8 @@ def game():
 
 
         screen.blit(background_image,topleft)
-        enemy_objects.draw(screen)
+        for enemy_object in enemy_objects:
+            enemy_object.draw(screen)
         for enemy_ship in enemy_ships:
             enemy_ship.draw(screen)
 

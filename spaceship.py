@@ -323,7 +323,7 @@ class Spaceship(pygame.sprite.Sprite):
         explosion = Explosion(*point,size)
         explosions.add(explosion)
     
-    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses,items,enemy_ships):
+    def update(self,pressed_keys,alien_group,bullets_group,explosions,hearts,potions,crosses,items,enemy_ships,enemy_objects):
         
         
 
@@ -421,6 +421,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.bomb.update(alien_group,explosions)
         self.torpedo.update() 
         collisions_enemy_torpedo = None
+
         if self.torpedo.sprite:
         
 
@@ -446,12 +447,17 @@ class Spaceship(pygame.sprite.Sprite):
         collisions_ship = pygame.sprite.groupcollide(self.bullets,enemy_ships,True,False,collided=pygame.sprite.collide_mask)
 
         # collision_enemy.update(collisions_ship)
+
         
         for _,ships in collisions_ship.items():
             for ship in ships:
                 if ship.take_damage(self.damage):
                     self._add_explosion(ship.rect.center,explosions)
-        
+
+        collisions_objects = pygame.sprite.groupcollide(self.bullets,enemy_objects,True,False,collided=pygame.sprite.collide_mask)        
+        for _,collision_objects in collisions_objects.items():
+            for collision_object in collision_objects:
+                collision_object.take_a_hit(explosions)
 
         
 
@@ -507,7 +513,16 @@ class Spaceship(pygame.sprite.Sprite):
                     if self.health <= 0:
                         self.die(explosions)
                         return True
+            
+            objects_collided = pygame.sprite.spritecollide(self,enemy_objects,dokill=True,collided=pygame.sprite.collide_mask)
+            for enemy_object in objects_collided:
+                self.health -= enemy_object.damage
+                explosions.add(Explosion(*enemy_object.rect.center,size=3))
+                if self.health <= 0:
+                    self.die(explosions)
+                    return True
 
+            
         item_collisions = pygame.sprite.spritecollide(self,items,dokill=True,collided=pygame.sprite.collide_mask)
 
         if item_collisions:

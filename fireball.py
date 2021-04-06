@@ -37,7 +37,7 @@ class Fireball(Meteor):
 
     def __init__(self,width,height,speed=3,frame_switch=1,damage=20):
         self.image = self.images[0]
-        super().__init__(width,height,speed,frame_switch,damage)
+        super().__init__(width,height,speed,frame_switch,damage,hits=-1)
 
 
 
