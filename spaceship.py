@@ -553,6 +553,8 @@ class Spaceship(pygame.sprite.Sprite):
                     result = item.powerup(self)
                     if result == 'clear':
                         bullets_group.empty()
+                        for ship in enemy_ships:
+                            ship.bullets.empty()
 
 
         
