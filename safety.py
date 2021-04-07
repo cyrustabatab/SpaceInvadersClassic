@@ -10,7 +10,7 @@ class Safety(Item):
     
     
     name = 'safety' 
-
+    
     @property
     def text(self):
         text = "PROTECT FROM FIVE HITS"
@@ -23,7 +23,8 @@ class Safety(Item):
         return os.path.join('assets','x.png')
 
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
 
         player.add_five_hit_protection()
 

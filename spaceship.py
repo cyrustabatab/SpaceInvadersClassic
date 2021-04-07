@@ -47,6 +47,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.vel = vec(xspeed,0)
         self.original_vel = vec(0,-1)
         self.cooldown_time = cooldown_time
+        self.wildcard_image = None
         
         self.poison_texts = None
         self.rect = self.image.get_rect(topleft=(self.original_pos))
@@ -255,6 +256,14 @@ class Spaceship(pygame.sprite.Sprite):
         if self.bomb:
             self.bomb.draw(screen)
         
+        if self.wildcard_image:
+            current_time = time.time()
+            if current_time - self.wildcard_start >= 1:
+                self.wildcard_image = None
+            else:
+                screen.blit(self.wildcard_image,(self.rect.centerx - self.wildcard_image.get_width()//2,self.rect.y - self.image.get_height()//2))
+
+
         
         if self.poison_texts:
 
@@ -528,6 +537,9 @@ class Spaceship(pygame.sprite.Sprite):
         if item_collisions:
             self.power_up_sound.play()
             for item in item_collisions:
+                if item.hidden:
+                    self.wildcard_image = item.getImage() 
+                    self.wildcard_start = time.time()
                 name = item.name
                 image = item.getImage()
                 start_time = time.time()

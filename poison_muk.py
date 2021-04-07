@@ -14,15 +14,13 @@ class PoisonMuk(Item):
         width = 28
         return text_wrap(text,width,self.font)
 
-    @property
-    def time_last(self):
-        return -1
 
     @property
     def image_path(self):
         return os.path.join('assets','muk.png')
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
         player.poison()
 
     @staticmethod

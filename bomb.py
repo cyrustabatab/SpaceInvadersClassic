@@ -100,7 +100,8 @@ class BombPowerUp(Item):
         return os.path.join('assets','bomb.png')
     
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
         player.add_bomb()
 
 

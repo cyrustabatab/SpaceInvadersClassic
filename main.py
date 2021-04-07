@@ -27,6 +27,7 @@ from asteroid import Asteroid
 from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip,FlyingSaucer
 from strength import Strength
 from red_button import RedButton
+from wildcard import WildCard
 
 
 from moon import Moon
@@ -117,7 +118,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,BombPowerUp,Strength,RedButton]
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,BombPowerUp,Strength,RedButton,'wildcard']
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -281,7 +282,11 @@ def game():
                     else:
                         number = random.randint(len(item_types) - 1,len(item_types) -1)
                         class_ =item_types[number] 
-                        item = class_(WIDTH,HEIGHT)
+                        hidden = False
+                        if class_ == 'wildcard':
+                            class_ = random.choice([Strength,RedButton])
+                            hidden= True
+                        item = class_(WIDTH,HEIGHT,hidden=hidden)
                         items.add(item)
                 elif event.type == ENEMY_SHIP_EVENT:
                     ship_class= random.choice(enemy_ship_types)

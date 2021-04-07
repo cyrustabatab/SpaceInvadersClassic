@@ -7,6 +7,7 @@ class Skull(Item):
     
 
     name = 'skull'    
+    time_last = 0
 
     @property
     def text(self):
@@ -15,16 +16,14 @@ class Skull(Item):
         return self.font.render(text,True,WHITE)
     
 
-    @property
-    def time_last(self):
-        return 0
 
     @property
     def image_path(self):
         return os.path.join('assets','skull.png')
 
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
 
         player.instant_die()
 

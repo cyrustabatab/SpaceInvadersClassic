@@ -49,7 +49,8 @@ class TorpedoPowerUp(Item):
         return texts
     
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
         player.add_torpedo()
 
 

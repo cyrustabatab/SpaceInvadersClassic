@@ -24,7 +24,8 @@ class Snowflake(Item):
         return 5
 
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
         player.freeze()
 
     

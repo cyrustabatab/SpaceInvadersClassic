@@ -8,6 +8,7 @@ class Strength(Item):
     
 
     name = 'strength'
+    time_last = 10
 
     @property
     def text(self):
@@ -17,9 +18,6 @@ class Strength(Item):
         return text_wrap(text,width,self.font)
 
     
-    @property
-    def time_last(self):
-        return 10
 
     @property
     def image_path(self):
@@ -27,7 +25,7 @@ class Strength(Item):
 
     
     def powerup(self,player):
-
+        super().powerup()
         player.increase_bullet_damage()
 
     @staticmethod

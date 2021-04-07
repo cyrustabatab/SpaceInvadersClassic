@@ -8,15 +8,13 @@ class Heart(Item):
 
 
     name = 'heart'
-    
+    time_last = 0
+
     @property
     def image_path(self):
         return os.path.join('assets','heart.png')
     
     
-    @property
-    def time_last(self):
-        return 0
 
     @property
     def text(self):
@@ -24,6 +22,7 @@ class Heart(Item):
         WHITE = (255,255,255)
         return self.font.render(text,True,WHITE)
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
         player.add_ten_health()
 

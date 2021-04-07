@@ -5,7 +5,7 @@ import os
 class Star(Item):
     
     name = 'star'
-
+    time_last = 10
     
     @property
     def image_path(self):
@@ -20,12 +20,10 @@ class Star(Item):
         return self.font.render(text,True,WHITE)
 
 
-    @property
-    def time_last(self):
-        return 10
 
-    def powerup(self,player):
-        player.double_speed(self.time_last)
+    @staticmethod
+    def powerup(player):
+        player.double_speed(Star.time_last)
 
 
     @staticmethod

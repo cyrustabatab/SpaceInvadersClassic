@@ -5,6 +5,7 @@ import os
 class FreeMovement(Item):
 
     name = "free"    
+    time_last = 10
 
     @property
     def text(self):
@@ -13,9 +14,6 @@ class FreeMovement(Item):
         return self.font.render(text,True,WHITE)
     
 
-    @property
-    def time_last(self):
-        return 10
 
     @property
     def image_path(self):
@@ -23,6 +21,7 @@ class FreeMovement(Item):
     
 
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
         player.allow_turning()
     

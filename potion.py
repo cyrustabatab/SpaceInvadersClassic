@@ -7,6 +7,7 @@ class InvincibilityPotion(Item):
 
 
     name = 'potion'    
+    time_last = 10
 
     @property
     def image_path(self):
@@ -19,11 +20,9 @@ class InvincibilityPotion(Item):
         WHITE = (255,255,255)
         return self.font.render(text,True,WHITE)
     
-    @property
-    def time_last(self):
-        return 10
 
-    def powerup(self,player):
+    @staticmethod
+    def powerup(player):
         player.make_invincible()
     
 

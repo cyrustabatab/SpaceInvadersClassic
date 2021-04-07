@@ -6,6 +6,7 @@ class RedButton(Item):
 
     
     name = 'red'
+    time_last = 0
 
     @property
     def text(self):
@@ -14,16 +15,15 @@ class RedButton(Item):
         return self.font.render(text,True,WHITE)
     
 
-    @property
-    def time_last(self):
-        return 0
 
     @property
     def image_path(self):
         return os.path.join('assets','red_button.png')
 
 
+    
     def powerup(self,player):
+        super().powerup()
         return 'clear'
 
 
