@@ -8,6 +8,7 @@ vec = pygame.math.Vector2
 class Torpedo(pygame.sprite.Sprite):
     image = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join('assets','torpedoTed.png')).convert_alpha(),(40,40)),-90)
     sound = pygame.mixer.Sound(os.path.join('assets','missile.wav'))
+    name = 'torpedo'
     def __init__(self,x,y,speed=4):
         super().__init__()
         self.x = x

@@ -92,6 +92,7 @@ def game():
         aliens = Aliens(WIDTH)
         enemy_ships.empty()
         items.empty()
+        enemy_objects.empty()
         #for sprite in items:
             #sprite.kill()
         started = False
@@ -118,7 +119,7 @@ def game():
 
     
 
-    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,BombPowerUp,Strength,RedButton,'wildcard']
+    item_types = [Heart,InvincibilityPotion,Cross,Star,TorpedoPowerUp,Safety,Skull,BombPowerUp,Snowflake,PoisonMuk,BombPowerUp,Strength,RedButton,'wildcard',Safety,InvincibilityPotion]
     buttons_gap_from_edge = 100
 
     play_again_text = font.render("PLAY AGAIN",True,WHITE)
@@ -284,7 +285,7 @@ def game():
                         class_ =item_types[number] 
                         hidden = False
                         if class_ == 'wildcard':
-                            class_ = random.choice([Strength,RedButton])
+                            class_ = random.choice([Strength,RedButton,InvincibilityPotion,Safety,TorpedoPowerUp,BombPowerUp])
                             hidden= True
                         item = class_(WIDTH,HEIGHT,hidden=hidden)
                         items.add(item)

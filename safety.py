@@ -23,9 +23,8 @@ class Safety(Item):
         return os.path.join('assets','x.png')
 
 
-    @staticmethod
-    def powerup(player):
-
+    def powerup(self,player):
+        super().powerup()    
         player.add_five_hit_protection()
 
 

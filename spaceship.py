@@ -2,6 +2,7 @@ import pygame,os,random
 from bullet import Bullet
 from torpedo import Torpedo
 from explosion_animation import Explosion
+from potion import InvincibilityPotion
 import time
 from star import Star
 from copy import copy
@@ -97,14 +98,17 @@ class Spaceship(pygame.sprite.Sprite):
         self.pressed_down_start = time.time()
     
     def release_bomb(self):
-        released_up = time.time()
 
-        time_elapsed = released_up - self.pressed_down_start
-        target_y = self.screen_height - time_elapsed * 200 # 100 pixels for every second held
-        self.has_bomb = False
-        del self.powerups[Bomb.name]
-        self.pressed_down_start = None
-        self.bomb.sprite = Bomb(self.rect.centerx,self.screen_height,target_y)
+
+        if self.has_bomb:
+            released_up = time.time()
+
+            time_elapsed = released_up - self.pressed_down_start
+            target_y = self.screen_height - time_elapsed * 200 # 100 pixels for every second held
+            self.has_bomb = False
+            del self.powerups[Bomb.name]
+            self.pressed_down_start = None
+            self.bomb.sprite = Bomb(self.rect.centerx,self.screen_height,target_y)
 
 
     
@@ -156,6 +160,7 @@ class Spaceship(pygame.sprite.Sprite):
 
     def add_five_hit_protection(self):
         self.protected = True
+        print('here')
         self.hits_allowed = 5
         self.hits_allowed_text = self.font.render(str(self.hits_allowed),True,WHITE)
 
@@ -174,6 +179,7 @@ class Spaceship(pygame.sprite.Sprite):
 
     def unprotect(self):
         self.protected_bubble = False
+        self.protected = False
     
     def removeCoins(self,coins):
         self.coins_collected -= coins
@@ -194,7 +200,7 @@ class Spaceship(pygame.sprite.Sprite):
 
 
     def add_torpedo(self):
-        if not self.has_torpedo:
+        if not self.has_torpedo and not self.has_bomb:
             self.has_torpedo = True
     
     def fire_torpedo(self):
@@ -209,6 +215,7 @@ class Spaceship(pygame.sprite.Sprite):
 
     def make_invincible(self):
         self.protected_bubble = True
+        self.protected = True
         self.protected_start = time.time()
 
     def double_speed(self,t):
@@ -242,6 +249,14 @@ class Spaceship(pygame.sprite.Sprite):
         screen.blit(self.image,self.rect)
         if self.protected:
             screen.blit(self.transparent_surface,self.transparent_rect)
+            if self.protected_bubble:
+                time_last = self.powerups[InvincibilityPotion.name][2]
+                time_last_text = self.font.render(str(time_last),True,WHITE)
+                screen.blit(time_last_text,(self.rect.centerx - time_last_text.get_width()//2,self.rect.centery - time_last_text.get_height()//2))
+
+
+
+            
         if self.torpedo:
             self.torpedo.draw(screen)
         
@@ -443,7 +458,6 @@ class Spaceship(pygame.sprite.Sprite):
                 explosion = Explosion(*alien_ship.rect.center,size)
                 explosions.add(explosion)
 
-
             
         
         
@@ -467,6 +481,8 @@ class Spaceship(pygame.sprite.Sprite):
         for _,collision_objects in collisions_objects.items():
             for collision_object in collision_objects:
                 collision_object.take_a_hit(explosions)
+                if self.increased_damage:
+                    collision_object.take_a_hit(explosions)
 
         
 
@@ -549,6 +565,9 @@ class Spaceship(pygame.sprite.Sprite):
                         item.powerup(self)
                     elif self.powerups[name][2] != -1:
                         self.powerups[name][2] += item.time_last
+                    elif name == 'safety':
+                        self.hits_allowed = 5
+                        self.hits_allowed_text = self.font.render(str(self.hits_allowed),True,WHITE)
                 else:
                     result = item.powerup(self)
                     if result == 'clear':
