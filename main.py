@@ -677,17 +677,23 @@ def enemies_screen():
     class MultipleIcon(pygame.sprite.Sprite):
 
 
-        def __init__(self,x,y,images,size=40):
+        def __init__(self,x,y,images,size=-1,frames=60):
             super().__init__()
             self.images = images
+
+            
             for i,image in enumerate(self.images):
-                self.images[i] = pygame.transform.scale(pygame.image.load(image).convert_alpha(),(size,size))
+                if size != -1:
+                    self.images[i] = pygame.transform.scale(pygame.image.load(image).convert_alpha(),(size,size))
+                else:
+                    self.images[i] = pygame.image.load(image).convert_alpha()
 
             self.image = self.images[0]
 
             self.rect = self.image.get_rect(topleft=(x,y))
             self.image_index = 0
             self.frame_counter = 0
+            self.frames = frames
 
 
         def update(self):
@@ -695,7 +701,7 @@ def enemies_screen():
 
             self.frame_counter += 1
 
-            if self.frame_counter == FPS:
+            if self.frame_counter == self.frames:
                 self.frame_counter = 0
                 self.image_index = (self.image_index + 1) % len(self.images)
 
@@ -717,27 +723,62 @@ def enemies_screen():
         
 
     image_size = 60
-    left_gap = (WIDTH - image_size * 3)//2
     top_gap = HEIGHT//2 + 50
     
 
     icons = pygame.sprite.Group()
     
-    rows = cols = 1
+
+
+    cols = 4
+    rows = 2
+
+    gap = 40
+    left_gap = WIDTH//2  - ((image_size + gap) *cols - gap)//2
+
     
     directory = os.path.join('assets','aliens')
 
     file_names = [os.path.join(directory,file_name) for file_name in os.listdir(directory)]
     images = [file_names]
     print(len(file_names))
+
+    directory = os.path.join('assets','enemies')
+
+    images = []
+    for file_ in os.listdir(directory):
+        path = os.path.join(directory,file_)
+        if os.path.isfile(path):
+            images.append(path)
+        else:
+            file_names = [os.path.join(path,file_name) for file_name in os.listdir(path)]
+            images.append(file_names)
+    
+    exit = False
     for row in range(rows):
         for col in range(cols):
-            image = images[row * cols + col]
+            try:
+                image = images[row * cols + col]
+            except IndexError:
+                exit = True
+                break
+
+            
+
+
             if isinstance(image,list):
-                icon = MultipleIcon(left_gap + (col * image_size),top_gap +row * image_size,image,image_size)
+                if row * cols + col > 1:
+                    fps = 10
+                else:
+                    fps = 60
+
+                icon = MultipleIcon(left_gap + (col * (image_size + gap)),top_gap +row * image_size,image,image_size,fps)
             else:
-                icon = Icon(left_gap + (col * image_size),top_gap +row * image_size,image,image_size)
+                icon = Icon(left_gap + (col * (image_size + gap)),top_gap +row * image_size,image,image_size)
             icons.add(icon)
+        if exit:
+            break
+
 
     while True:
 
