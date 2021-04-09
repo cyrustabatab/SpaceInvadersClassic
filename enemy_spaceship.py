@@ -8,6 +8,7 @@ vec = pygame.math.Vector2
 
 RED = (255,0,0)
 GREEN = (0,255,0)
+
 def get_images(directory,size=60):
     images= []
     for file_ in os.listdir(directory):
@@ -172,21 +173,18 @@ def get_rocket_images():
 
 
 
-        
-
 
 class RocketShip(EnemySpaceShip):
 
     
     images = get_rocket_images()
+    switch_frame = 10
+
     def __init__(self,screen_width,screen_height,speed=5,health=100):
         super().__init__(screen_width,screen_height,speed,health)
-        self.image_index = 0 
-        self.image = self.images[0]
         self.frame_count = 0
-
-
-        self.switch_frame = 10
+        self.image_index = 0
+        self.image = self.images[self.image_index]
 
 
 
@@ -220,6 +218,23 @@ def get_flying_saucer_images():
             images.append(image)
         different_images.append(images)
     return different_images
+
+
+
+
+
+
+
+class BlackHole(RocketShip):
+
+    images = get_images(os.path.join('assets','black_hole'))
+
+
+    def __init__(self,screen_width,screen_height,speed=3,health=0):
+        super().__init__(screen_width,screen_height,speed,health)
+
+
+
 
 
 
@@ -276,21 +291,6 @@ class FlyingSaucer(RocketShip):
                 self.vel.y = new_speed(self.vel.y)
 
             self.second_time = current_time
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

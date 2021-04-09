@@ -541,7 +541,10 @@ class Spaceship(pygame.sprite.Sprite):
             
             objects_collided = pygame.sprite.spritecollide(self,enemy_objects,dokill=True,collided=pygame.sprite.collide_mask)
             for enemy_object in objects_collided:
-                self.health -= enemy_object.damage
+                if enemy_object.damage == float("inf"):
+                    self.health = 0
+                else:
+                    self.health -= enemy_object.damage
                 explosions.add(Explosion(*enemy_object.rect.center,size=3))
                 if self.health <= 0:
                     self.die(explosions)

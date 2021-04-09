@@ -25,6 +25,7 @@ from fireball import Fireball
 from meteor import Meteor
 from asteroid import Asteroid
 from enemy_spaceship import EnemySpaceShip,EnemySpaceShips,RocketShip,FlyingSaucer
+from black_hole import BlackHole
 from strength import Strength
 from red_button import RedButton
 from wildcard import WildCard
@@ -294,7 +295,7 @@ def game():
                     enemy = FlyingSaucer(WIDTH,HEIGHT,speed=3)
                     enemy_ships.add(enemy)
                 elif event.type == ENEMY_OBJECT_EVENT:
-                    meteor = Asteroid(WIDTH,HEIGHT)
+                    meteor = BlackHole(WIDTH,HEIGHT)
                     #enemy_ships.add(meteor)
                     enemy_objects.add(meteor)
 
@@ -709,22 +710,8 @@ def enemies_screen():
 
 
 
-
-
-
-
-
-
-
-
-    
-
-    
-        
-
     image_size = 60
     top_gap = HEIGHT//2 + 50
-    
 
     icons = pygame.sprite.Group()
     
