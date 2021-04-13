@@ -8,6 +8,7 @@ screen = pygame.display.set_mode((WIDTH,HEIGHT))
 import textwrap
 from spaceship import Spaceship
 from aliens import Aliens
+from boss import Boss
 from heart import Heart
 from potion import InvincibilityPotion
 from cross import Cross
