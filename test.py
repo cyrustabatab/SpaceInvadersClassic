@@ -4,8 +4,10 @@ import math
 import time
 pygame.init()
 
-screen  = pygame.display.set_mode((800,800))
+SCREEN_WIDTH = SCREEN_HEIGHT = 800
+screen  = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 from boss import Boss
+from spritesheet import Spritesheet
 
 vec = pygame.math.Vector2
 
@@ -15,6 +17,16 @@ clock = pygame.time.Clock()
 FPS = 60
 
 WHITE = (255,255,255)
+
+
+filename = os.path.join('assets','turret_sheet.png')
+spritesheet = Spritesheet(filename)
+
+turret_image = spritesheet.load_strip(pygame.Rect(0,0,96,96),1)[0]
+
+turret_image = pygame.transform.rotate(turret_image,180)
+
+
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -39,6 +51,55 @@ class Bullet(pygame.sprite.Sprite):
 
 
 
+class Turret(pygame.sprite.Sprite):
+
+    image = turret_image
+
+    def __init__(self,left=True):
+        super().__init__()
+
+        
+        if left:
+            x = self.image.get_width()//2
+        else:
+            x = SCREEN_WIDTH - self.image.get_width()//2
+        y = SCREEN_HEIGHT//2
+        self.rect = self.image.get_rect(center=(x,y))
+        self.left = left
+        self.degree = 0 
+        self.original_image = self.image
+
+
+    def update(self,player):
+
+
+        delta_y  = self.rect.centery - player.rect.centery
+        delta_x = self.rect.centerx - player.rect.centerx
+
+        angle = math.atan(delta_x/delta_y)
+
+        degrees = angle  * (180/math.pi)
+        
+        self.current_target = degrees
+        if degrees > 0:
+            self.direction = -2
+            self.degree += self.direction
+            self.degree= max(self.current_target,self.degree)
+        else:
+            self.direction = 2
+            self.degree += self.direction
+            self.degree = min(self.current_target,self.degree)
+        
+
+        self.image = pygame.transform.rotate(self.original_image,self.degree)
+        '''
+        if self.left:
+            if self.ship.rect.center < SCREEN_WIDTH//2: # left side
+                pass
+        else:
+            if self.ship.rect.center >= SCREEN_WIDTH//2:
+                pass
+        '''
 
 
         
@@ -164,6 +225,15 @@ ships = pygame.sprite.Group()
 ships.add(enemy)
 ships.add(ship)
 
+
+turrets = pygame.sprite.Group()
+
+left_turret = Turret()
+right_turret = Turret(left=False)
+
+turrets.add(left_turret)
+turrets.add(right_turret)
+
 while True:
 
 
@@ -187,12 +257,19 @@ while True:
     enemy.update(ship)
 
 
+    if ship.rect.centerx < SCREEN_WIDTH//2:
+        left_turret.update(ship)
+    else:
+        right_turret.update(ship)
+
+
 
     
     screen.fill(WHITE)
 
     ship.draw(screen)
     enemy.draw(screen)
+    turrets.draw(screen)
 
     pygame.display.update()
 
